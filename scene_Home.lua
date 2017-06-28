@@ -173,9 +173,7 @@ function scene:create( event )
 
     				elseif 'ended' == event.phase then
 
-    					if releaseSoundHandle then
-    						audio.play( releaseSoundHandle )
-    					end
+
 
     					local stage = display.getCurrentStage()
     					stage:setFocus( nil )
@@ -186,11 +184,19 @@ function scene:create( event )
 
     					if blender:containsPoint( self.x, self.y ) then
 
+    						if releaseSoundHandle then
+    							audio.play( releaseSoundHandle )
+    						end
+
     						print("adding "..self.ingredient.name.." to mixture")
     						transition.to (self, { x = display.contentCenterX, y = display.contentCenterY, xScale = 0.1, yScale = 0.1, time = 150, onComplete = function() self:removeSelf() end })
 
     					else
 
+    						if selectSoundHandle then
+    							audio.play( selectSoundHandle )
+    						end
+    						
     						transition.to (self, { x = self.originalX, y = self.originalY, xScale = 0.1, yScale = 0.1, time = 150, onComplete = function() self:removeSelf() end })
 
     					end
