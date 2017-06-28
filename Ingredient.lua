@@ -1,7 +1,6 @@
 local Ingredient = {}
 
 function Ingredient.new( options )
-	print("Ingredient.new")
 
 	local options = options or {}
 
@@ -20,14 +19,16 @@ function Ingredient.new( options )
 		local circle = display.newCircle( 0, 0, 25 )
 		local colour = options.colour or { 0 }
 		circle:setFillColor( unpack( colour ) )
+		circle:setStrokeColor( 1 )
+		circle.strokeWidth = 1
 
 		ingredient:insert( circle )
 
-		if ingredient.name and string.len( ingredient.name ) > 0 then
-			local firstLetterOfName = string.upper( string.sub( ingredient.name, 1, 1 ) )
+		if ingredient.name and string.len( ingredient.name ) >= 4 then
+			local firstLetterOfName = string.upper( string.sub( ingredient.name, 1, 4 ) )
 			local letter = display.newText( {
 				text = firstLetterOfName,
-				fontSize = 30,
+				fontSize = 10,
 			} )
 			letter:setFillColor( 1 )
 			ingredient:insert( letter )
