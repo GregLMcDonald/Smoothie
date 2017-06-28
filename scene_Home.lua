@@ -10,8 +10,48 @@
 local composer = require( "composer" )
 local scene = composer.newScene()
 
+local soundFilenameSuffix = '.ogg'
+
+
+local directoryPrefix = "audio/"
+local androidSuffix = ".ogg"
+local iosSuffix = ".m4a"
+
+local function filenameForBase( base )
+
+	local fn = directoryPrefix..base..androidSuffix
+	if system.pathForFile( fn , system.ResourceDirectory ) ~= nil then
+    	return fn
+    end
+
+    fn = directoryPrefix..base..iosSuffix 
+	if system.pathForFile( fn, system.ResourceDirectory ) ~= nil then
+    	return fn
+    end
+
+    return nil
+end
+
+
+local selectSoundFilename = filenameForBase( 'select')
+local selectSoundHandle
+if selectSoundFilename then
+	selectSoundHandle = audio.loadSound( selectSoundFilename )
+end
+
+local releaseSoundFilename = filenameForBase( 'release' )
+local releaseSoundHandle 
+if releaseSoundFilename then
+	releaseSoundHandle = audio.loadSound( releaseSoundFilename )
+end
+
+print(selectSoundFilename,selectSoundHandle)
+print(releaseSoundFilename,releaseSoundHandle)
+
 
 function scene:create( event )
+
+	--display.setDrawMode( 'wireframe', true )
 
     local sceneGroup = self.view
 
@@ -20,11 +60,11 @@ function scene:create( event )
     sceneGroup:insert( bleed )
 
     local background = display.newRect( display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight )
-    background:setFillColor( 0.6 )
+    background:setFillColor( 1,.98,.98 )
     sceneGroup:insert( background )
 
     local blender = display.newRect(0,0, 0.5 * display.contentWidth, 0.5 * display.contentHeight )
-    blender:setFillColor( 0.8 )
+    blender:setFillColor( 0.4 )
     blender:setStrokeColor( 0 )
     blender.strokeWidth = 1
     blender.x = display.contentCenterX
@@ -40,30 +80,33 @@ function scene:create( event )
     		return false
     	end
 	end
+	blender.isOver = false
+	function blender:setOver( state )
+		if blender.isOver == state then return end
+
+		blender.isOver = state
+		if state == true then
+			blender:setFillColor( .8 )
+		else
+			blender:setFillColor( 0.4 )
+		end
+	end
 
     sceneGroup:insert( blender )
 
 
-    local ingredients = {
-    	'spaghetti',
-    	'kale',
-    	'carrot',
-    	'cocoa',
-    	'banana',
-    	'spinach',
-    	'almond milk',
-    	'celery',
-    	'chia',
-    	'spirulina',
-    }
-
-
-    local Ingredient = require 'Ingredient'
+    local IngredientDisplayObject = require 'IngredientDisplayObject'
+    local IngredientList = require 'IngredientList'
 
     local yBase = 50
     local yStep = 60
 
-    for i = 1, #ingredients do
+    local maxIndex = math.min( #IngredientList.orderedKeys, 10 )
+
+    for i = 1, maxIndex do
+
+    	local key = IngredientList.orderedKeys[ i ]
+    	local _ingredient = IngredientList[ key ]
 
     	local x
     	if i <= 5 then
@@ -74,42 +117,76 @@ function scene:create( event )
 
     	local y = yBase + ( (i-1) % 5 ) * yStep
 
-    	local _ingredient = Ingredient.new( { name = ingredients[ i ] } )
-    	_ingredient.x = x
-    	_ingredient.y = y
-    	y = y + yStep
-    	sceneGroup:insert( _ingredient )
+    	local _ingredientDisplayObject = IngredientDisplayObject.new( _ingredient )
 
-    	function _ingredient:touch( event )
+    	_ingredientDisplayObject.x = x
+    	_ingredientDisplayObject.y = y
+
+    	y = y + yStep
+
+    	sceneGroup:insert( _ingredientDisplayObject )
+
+    	function _ingredientDisplayObject:touch( event )
     		
     		if 'began' == event.phase then
 
-    			local _sample = Ingredient.new( { name = self.name, colour = {1,0,0} } )
+    			local _sample = IngredientDisplayObject.new( self.ingredient )
+    			
     			_sample.x = self.x
     			_sample.y = self.y
+    			
+    			_sample.xOffset = event.x - self.x
+    			_sample.yOffset = event.y - self.y
+
     			_sample.originalX = self.x
     			_sample.originalY = self.y
+
     			sceneGroup:insert( _sample )
     			_sample:toFront( )
 
     			_sample.xScale = 0.2
     			_sample.yScale = 0.2
 
-    			transition.to( _sample, { xScale = 1, yScale = 1, time = 600, transition = easing.outElastic } )
+    			transition.to( _sample, { xScale = 1.1, yScale = 1.1, time = 1000, transition = easing.outElastic } )
+
+    			if selectSoundHandle then
+    				audio.play( selectSoundHandle )
+    			end
 
     			function _sample:touch( event )
     				if 'moved' == event.phase then
 
-    					self.x = event.x
-    					self.y = event.y
+    					self.x = event.x - self.xOffset
+    					self.y = event.y - self.yOffset
+
+    					
+    					if blender:containsPoint( self.x, self.y ) then
+    					 	if blender.isOver == false then
+    							blender:setOver( true )
+    						end
+    					else
+    						if blender.isOver == true then
+    							blender:setOver( false)
+    						end
+    					end
+    					
 
     				elseif 'ended' == event.phase then
 
+    					if releaseSoundHandle then
+    						audio.play( releaseSoundHandle )
+    					end
+
+    					local stage = display.getCurrentStage()
+    					stage:setFocus( nil )
+
     					transition.cancel( self )
+    					blender:setOver( false )
+
 
     					if blender:containsPoint( self.x, self.y ) then
 
-    						print("adding "..self.name.." to mixture")
+    						print("adding "..self.ingredient.name.." to mixture")
     						transition.to (self, { x = display.contentCenterX, y = display.contentCenterY, xScale = 0.1, yScale = 0.1, time = 150, onComplete = function() self:removeSelf() end })
 
     					else
@@ -130,7 +207,7 @@ function scene:create( event )
 
     		end
     	end
-    	_ingredient:addEventListener( 'touch', _ingredient )
+    	_ingredientDisplayObject:addEventListener( 'touch', _ingredientDisplayObject )
 
     end
 
@@ -175,6 +252,8 @@ scene:addEventListener( "create", scene )
 scene:addEventListener( "show", scene )
 scene:addEventListener( "hide", scene )
 scene:addEventListener( "destroy", scene )
+
+--Runtime:addEventListener( 'enterFrame', scene )
 
 
 return scene

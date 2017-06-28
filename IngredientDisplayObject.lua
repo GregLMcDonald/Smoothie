@@ -1,19 +1,19 @@
 local IngredientDisplayObject = {}
 
-function IngredientDisplayObject.new( options )
+function IngredientDisplayObject.new( ingredient, options )
 
 	local options = options or {}
 
-	local ingredient = display.newGroup( )
-	ingredient.name = options.name or ''
-	ingredient.costPerUnit = options.costPerUnit or 0
+	local displayObject = display.newGroup( )
+	displayObject.ingredient = {}
+	for k,v in pairs(ingredient) do
+		displayObject.ingredient[ k ] = v
+	end
+		
+	if ingredient.imageFilename then
 
-	options.image = 'images/apple.png'
-
-	if options.image then
-
-		local image = display.newImageRect(  options.image, 50, 50  )
-		ingredient:insert( image )
+		local image = display.newImageRect(  ingredient.imageFilename, 50, 50  )
+		displayObject:insert( image )
 
 	else
 
@@ -23,7 +23,7 @@ function IngredientDisplayObject.new( options )
 		circle:setStrokeColor( 1 )
 		circle.strokeWidth = 1
 
-		ingredient:insert( circle )
+		displayObject:insert( circle )
 
 		if ingredient.name and string.len( ingredient.name ) >= 4 then
 			local firstLetterOfName = string.upper( string.sub( ingredient.name, 1, 4 ) )
@@ -32,14 +32,14 @@ function IngredientDisplayObject.new( options )
 				fontSize = 10,
 			} )
 			letter:setFillColor( 1 )
-			ingredient:insert( letter )
+			displayObject:insert( letter )
 		end
 
 	end
 
 	
 
-	return ingredient
+	return displayObject
 
 	
 end

@@ -62,7 +62,8 @@ settings =
 	excludeFiles =
 	{
 		-- Exclude unnecessary files for each platform
-		ios = { "Icon.png", "Icon-*dpi.png", },
-		android = { "Icon.png", "Icon-??.png", "Icon-???.png", "LaunchScreen.storyboardc", },
+		ios = { "Icon.png", "Icon-*dpi.png", "audio/*.ogg"},
+		android = { "Icon.png", "Icon-??.png", "Icon-???.png", "LaunchScreen.storyboardc", "audio/*.m4a" },
 	},
+
 }
