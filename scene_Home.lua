@@ -51,8 +51,6 @@ print(releaseSoundFilename,releaseSoundHandle)
 
 function scene:create( event )
 
-	--display.setDrawMode( 'wireframe', true )
-
     local sceneGroup = self.view
 
     local bleed = display.newRect(display.contentCenterX, display.contentCenterY, 1.25 * display.contentWidth, 1.25 * display.contentHeight)
@@ -106,17 +104,17 @@ function scene:create( event )
 
 
     local IngredientDisplayObject = require 'IngredientDisplayObject'
-    local IngredientList = require 'IngredientList'
+    local ingredientList = require 'ingredientList'
 
     local yBase = 50
     local yStep = 55
 
-    local maxIndex = math.min( #IngredientList.orderedKeys, 10 )
+    local maxIndex = math.min( #ingredientList.orderedKeys, 10 )
 
     for i = 1, maxIndex do
 
-    	local key = IngredientList.orderedKeys[ i ]
-    	local _ingredient = IngredientList[ key ]
+    	local key = ingredientList.orderedKeys[ i ]
+    	local _ingredient = ingredientList[ key ]
 
     	local x
     	if i <= 5 then
@@ -251,8 +249,6 @@ function scene:show( event )
     elseif ( phase == "did" ) then
     end
 end
-
-
 function scene:hide( event )
 
     local sceneGroup = self.view
@@ -262,9 +258,8 @@ function scene:hide( event )
     elseif ( phase == "did" ) then
     end
 end
-
-
 function scene:destroy( event )
+
     local sceneGroup = self.view
 end
 
@@ -273,8 +268,6 @@ scene:addEventListener( "create", scene )
 scene:addEventListener( "show", scene )
 scene:addEventListener( "hide", scene )
 scene:addEventListener( "destroy", scene )
-
---Runtime:addEventListener( 'enterFrame', scene )
 
 
 return scene

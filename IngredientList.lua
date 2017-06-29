@@ -1,9 +1,9 @@
-local IngredientList = {}
+local ingredientList = {}
 
 local defaultImageFilename = 'image/water.png'
 
 
-IngredientList.orderedKeys = {
+ingredientList.orderedKeys = {
 	'apple',
 	'avocado',
 	'carrot',
@@ -88,9 +88,9 @@ ingredientColours = {
 
 local lang = require( 'Language' ).getPreference()
 
-for i = 1, #IngredientList.orderedKeys do
+for i = 1, #ingredientList.orderedKeys do
 
-	local key = IngredientList.orderedKeys[ i ]
+	local key = ingredientList.orderedKeys[ i ]
 
 	local name
 	if ingredientNames[ lang ] then
@@ -113,9 +113,9 @@ for i = 1, #IngredientList.orderedKeys do
 		colour = ingredientColours[ key ],
 	}
 
-	IngredientList[ key ] = ingredient
+	ingredientList[ key ] = ingredient
 
 
 end
 
-return IngredientList
+return ingredientList
