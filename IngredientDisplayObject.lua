@@ -10,11 +10,13 @@ function IngredientDisplayObject.new( ingredient, options )
 		displayObject.ingredient[ k ] = v
 	end
 		
+	local image
 	if ingredient.imageFilename then
+		image = display.newImageRect(  ingredient.imageFilename, 50, 50  )	
+	end
 
-		local image = display.newImageRect(  ingredient.imageFilename, 50, 50  )
+	if image then
 		displayObject:insert( image )
-
 	else
 
 		local circle = display.newCircle( 0, 0, 25 )

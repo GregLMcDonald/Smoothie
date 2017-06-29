@@ -8,7 +8,7 @@ function IngredientDisplayObject.new( options )
 	ingredient.name = options.name or ''
 	ingredient.costPerUnit = options.costPerUnit or 0
 
-	options.image = 'images/apple.png'
+	options.image = 'image/apple.png'
 
 	if options.image then
 

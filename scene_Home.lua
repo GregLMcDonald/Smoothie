@@ -63,43 +63,53 @@ function scene:create( event )
     background:setFillColor( 1,.98,.98 )
     sceneGroup:insert( background )
 
-    local blender = display.newRect(0,0, 0.5 * display.contentWidth, 0.5 * display.contentHeight )
-    blender:setFillColor( 0.4 )
-    blender:setStrokeColor( 0 )
-    blender.strokeWidth = 1
-    blender.x = display.contentCenterX
-    blender.y = display.contentCenterY
-    blender.minX = blender.x - 0.5 * blender.contentWidth
-    blender.maxX = blender.x + 0.5 * blender.contentWidth
-    blender.minY = blender.y - 0.5 * blender.contentHeight
-    blender.maxY = blender.y + 0.5 * blender.contentHeight
-    function blender:containsPoint(x,y)
+    local blenderGroup = display.newGroup( )
+    local blenderBG = display.newRect(0,0, 0.5 * display.contentWidth, 0.5 * display.contentHeight )
+    blenderBG:setFillColor( 0.4 )
+    blenderBG:setStrokeColor( 0 )
+    blenderBG.strokeWidth = 1
+
+    blenderGroup:insert( blenderBG )
+
+    local blender = require('Blender').new()
+  	blenderGroup:insert( blender  )
+
+  	timer.performWithDelay( 2000, function() blender:empty() end )
+
+
+    blenderGroup.x = display.contentCenterX
+    blenderGroup.y = display.contentCenterY
+    blenderGroup.minX = blenderGroup.x - 0.5 * blenderBG.contentWidth
+    blenderGroup.maxX = blenderGroup.x + 0.5 * blenderBG.contentWidth
+    blenderGroup.minY = blenderGroup.y - 0.5 * blenderBG.contentHeight
+    blenderGroup.maxY = blenderGroup.y + 0.5 * blenderBG.contentHeight
+    function blenderGroup:containsPoint(x,y)
     	if x >= self.minX and x <= self.maxX and y >= self.minY and y <= self.maxY then
     		return true
     	else
     		return false
     	end
 	end
-	blender.isOver = false
-	function blender:setOver( state )
-		if blender.isOver == state then return end
+	blenderGroup.isOver = false
+	function blenderGroup:setOver( state )
+		if blenderGroup.isOver == state then return end
 
-		blender.isOver = state
+		blenderGroup.isOver = state
 		if state == true then
-			blender:setFillColor( .8 )
+			blenderBG:setFillColor( .8 )
 		else
-			blender:setFillColor( 0.4 )
+			blenderBG:setFillColor( 0.4 )
 		end
 	end
 
-    sceneGroup:insert( blender )
+    sceneGroup:insert( blenderGroup )
 
 
     local IngredientDisplayObject = require 'IngredientDisplayObject'
     local IngredientList = require 'IngredientList'
 
     local yBase = 50
-    local yStep = 60
+    local yStep = 55
 
     local maxIndex = math.min( #IngredientList.orderedKeys, 10 )
 
@@ -160,13 +170,13 @@ function scene:create( event )
     					self.y = event.y - self.yOffset
 
     					
-    					if blender:containsPoint( self.x, self.y ) then
-    					 	if blender.isOver == false then
-    							blender:setOver( true )
+    					if blenderGroup:containsPoint( self.x, self.y ) then
+    					 	if blenderGroup.isOver == false then
+    							blenderGroup:setOver( true )
     						end
     					else
-    						if blender.isOver == true then
-    							blender:setOver( false)
+    						if blenderGroup.isOver == true then
+    							blenderGroup:setOver( false)
     						end
     					end
     					
@@ -179,10 +189,10 @@ function scene:create( event )
     					stage:setFocus( nil )
 
     					transition.cancel( self )
-    					blender:setOver( false )
+    					blenderGroup:setOver( false )
 
 
-    					if blender:containsPoint( self.x, self.y ) then
+    					if blenderGroup:containsPoint( self.x, self.y ) then
 
     						if releaseSoundHandle then
     							audio.play( releaseSoundHandle )
@@ -190,13 +200,18 @@ function scene:create( event )
 
     						print("adding "..self.ingredient.name.." to mixture")
     						transition.to (self, { x = display.contentCenterX, y = display.contentCenterY, xScale = 0.1, yScale = 0.1, time = 150, onComplete = function() self:removeSelf() end })
+    						blender:addIngredient( self.ingredient )
+
+    						if self.ingredient.name == 'TACO' then
+    							blender:empty()
+    						end
 
     					else
 
     						if selectSoundHandle then
     							audio.play( selectSoundHandle )
     						end
-    						
+
     						transition.to (self, { x = self.originalX, y = self.originalY, xScale = 0.1, yScale = 0.1, time = 150, onComplete = function() self:removeSelf() end })
 
     					end
