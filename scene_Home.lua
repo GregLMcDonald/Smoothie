@@ -10,44 +10,6 @@
 local composer = require( "composer" )
 local scene = composer.newScene()
 
-local soundFilenameSuffix = '.ogg'
-
-
-local directoryPrefix = "audio/"
-local androidSuffix = ".ogg"
-local iosSuffix = ".m4a"
-
-local function filenameForBase( base )
-
-	local fn = directoryPrefix..base..androidSuffix
-	if system.pathForFile( fn , system.ResourceDirectory ) ~= nil then
-    	return fn
-    end
-
-    fn = directoryPrefix..base..iosSuffix 
-	if system.pathForFile( fn, system.ResourceDirectory ) ~= nil then
-    	return fn
-    end
-
-    return nil
-end
-
-
-local selectSoundFilename = filenameForBase( 'select')
-local selectSoundHandle
-if selectSoundFilename then
-	selectSoundHandle = audio.loadSound( selectSoundFilename )
-end
-
-local releaseSoundFilename = filenameForBase( 'release' )
-local releaseSoundHandle 
-if releaseSoundFilename then
-	releaseSoundHandle = audio.loadSound( releaseSoundFilename )
-end
-
-print(selectSoundFilename,selectSoundHandle)
-print(releaseSoundFilename,releaseSoundHandle)
-
 
 function scene:create( event )
 
@@ -61,46 +23,12 @@ function scene:create( event )
     background:setFillColor( 1,.98,.98 )
     sceneGroup:insert( background )
 
-    local blenderGroup = display.newGroup( )
-    local blenderBG = display.newRect(0,0, 0.5 * display.contentWidth, 0.5 * display.contentHeight )
-    blenderBG:setFillColor( 0.4 )
-    blenderBG:setStrokeColor( 0 )
-    blenderBG.strokeWidth = 1
 
-    blenderGroup:insert( blenderBG )
+    local blender = require( 'Blender' ).new()
+    self.appliance = blender
 
-    local blender = require('Blender').new()
-  	blenderGroup:insert( blender  )
-
-  	timer.performWithDelay( 2000, function() blender:empty() end )
-
-
-    blenderGroup.x = display.contentCenterX
-    blenderGroup.y = display.contentCenterY
-    blenderGroup.minX = blenderGroup.x - 0.5 * blenderBG.contentWidth
-    blenderGroup.maxX = blenderGroup.x + 0.5 * blenderBG.contentWidth
-    blenderGroup.minY = blenderGroup.y - 0.5 * blenderBG.contentHeight
-    blenderGroup.maxY = blenderGroup.y + 0.5 * blenderBG.contentHeight
-    function blenderGroup:containsPoint(x,y)
-    	if x >= self.minX and x <= self.maxX and y >= self.minY and y <= self.maxY then
-    		return true
-    	else
-    		return false
-    	end
-	end
-	blenderGroup.isOver = false
-	function blenderGroup:setOver( state )
-		if blenderGroup.isOver == state then return end
-
-		blenderGroup.isOver = state
-		if state == true then
-			blenderBG:setFillColor( .8 )
-		else
-			blenderBG:setFillColor( 0.4 )
-		end
-	end
-
-    sceneGroup:insert( blenderGroup )
+    blender:setPoint( display.contentCenterX, display.contentCenterY )
+  	sceneGroup:insert( blender  )
 
 
     local IngredientDisplayObject = require 'IngredientDisplayObject'
@@ -138,17 +66,8 @@ function scene:create( event )
     		
     		if 'began' == event.phase then
 
-    			local _sample = IngredientDisplayObject.new( self.ingredient )
+    			local _sample = require( 'DraggableIngredientDisplayObject' ).new( self.ingredient, self.x, self.y, event )
     			
-    			_sample.x = self.x
-    			_sample.y = self.y
-    			
-    			_sample.xOffset = event.x - self.x
-    			_sample.yOffset = event.y - self.y
-
-    			_sample.originalX = self.x
-    			_sample.originalY = self.y
-
     			sceneGroup:insert( _sample )
     			_sample:toFront( )
 
@@ -157,47 +76,36 @@ function scene:create( event )
 
     			transition.to( _sample, { xScale = 1.1, yScale = 1.1, time = 1000, transition = easing.outElastic } )
 
-    			if selectSoundHandle then
-    				audio.play( selectSoundHandle )
-    			end
+    			Runtime:dispatchEvent( { name = 'soundEvent', key = 'select' } )
+
 
     			function _sample:touch( event )
+
+
     				if 'moved' == event.phase then
 
-    					self.x = event.x - self.xOffset
-    					self.y = event.y - self.yOffset
-
+    					self:handleTouchMoved( event )
     					
-    					if blenderGroup:containsPoint( self.x, self.y ) then
-    					 	if blenderGroup.isOver == false then
-    							blenderGroup:setOver( true )
+    					if blender:containsPoint( self.x, self.y ) then
+    					 	if blender.isOver == false then
+    							blender:setOver( true )
     						end
     					else
-    						if blenderGroup.isOver == true then
-    							blenderGroup:setOver( false)
+    						if blender.isOver == true then
+    							blender:setOver( false)
     						end
     					end
     					
 
     				elseif 'ended' == event.phase then
 
+    					self:handleTouchEnded( event )
 
+    					blender:setOver( false )
+    					if blender:containsPoint( self.x, self.y ) then
 
-    					local stage = display.getCurrentStage()
-    					stage:setFocus( nil )
-
-    					transition.cancel( self )
-    					blenderGroup:setOver( false )
-
-
-    					if blenderGroup:containsPoint( self.x, self.y ) then
-
-    						if releaseSoundHandle then
-    							audio.play( releaseSoundHandle )
-    						end
-
-    						print("adding "..self.ingredient.name.." to mixture")
-    						transition.to (self, { x = display.contentCenterX, y = display.contentCenterY, xScale = 0.1, yScale = 0.1, time = 150, onComplete = function() self:removeSelf() end })
+    						self:handleAdded( blender.x, blender.y )
+    						
     						blender:addIngredient( self.ingredient )
 
     						if self.ingredient.name == 'TACO' then
@@ -206,11 +114,8 @@ function scene:create( event )
 
     					else
 
-    						if selectSoundHandle then
-    							audio.play( selectSoundHandle )
-    						end
+    						self:handleUnused()
 
-    						transition.to (self, { x = self.originalX, y = self.originalY, xScale = 0.1, yScale = 0.1, time = 150, onComplete = function() self:removeSelf() end })
 
     					end
 
@@ -227,11 +132,21 @@ function scene:create( event )
     		end
     	end
     	_ingredientDisplayObject:addEventListener( 'touch', _ingredientDisplayObject )
-
     end
 
 
+    local button = display.newRect( 0, 0, 100, 75 )
+    button:setFillColor( 0,1,0 )
+    button.x = display.contentCenterX
+    button.y = display.contentHeight - 0.5 * button.contentHeight - 10
+    sceneGroup:insert(button)
 
+    function button:touch( event )
+    	if 'ended' == event.phase then
+    		scene.appliance:processContents()
+    	end
+    end
+    button:addEventListener( 'touch', button )
 
    
 

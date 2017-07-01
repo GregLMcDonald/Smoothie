@@ -111,6 +111,7 @@ for i = 1, #ingredientList.orderedKeys do
 		name = name,
 		imageFilename = imageFilename,
 		colour = ingredientColours[ key ],
+		isUnlocked = false,
 	}
 
 	ingredientList[ key ] = ingredient

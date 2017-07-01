@@ -2,10 +2,14 @@ local IngredientDisplayObject = {}
 
 function IngredientDisplayObject.new( ingredient, options )
 
+	assert( ingredient , "ingregient cannot be nil in IngredientDisplayObject.new" )
+
 	local options = options or {}
 
 	local displayObject = display.newGroup( )
+
 	displayObject.ingredient = {}
+
 	for k,v in pairs(ingredient) do
 		displayObject.ingredient[ k ] = v
 	end

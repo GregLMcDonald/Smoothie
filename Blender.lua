@@ -5,53 +5,73 @@ local blenderHeight = 200
 
 function Blender.new()
 
-	local result = display.newGroup( )
-	result.contents = {}
-	result.fillingObjects = {}
-
+	local result = require( 'Appliance' ).new()
+	
 	local blenderImage = display.newImageRect( 'image/mixer.png', blenderWidth, blenderHeight )
     result:insert( blenderImage )
 
+    result.overImage = display.newImageRect( 'image/mixer_darker_container.png', blenderWidth, blenderHeight)
+    result:insert( result.overImage )
+    result.overImage.alpha = 0
+
     for i = 1, 10 do
-    	print(i)
     	local fillingName = 'image/mixer_fill_'..tostring(i)..'.png'
     	local filling = display.newImageRect( fillingName, blenderWidth, blenderHeight )
-    	filling.alpha = 1
-    	filling:setFillColor( i * 0.1 )
+    	filling.alpha = 0
     	result:insert( filling )
-
     	table.insert( result.fillingObjects, filling )
-
     end
 
 
-    function result:empty()
-    	for i = 1, #self.fillingObjects do
-    		local obj = self.fillingObjects[ i ]
-    		transition.cancel( obj )
-    		transition.to( obj, {alpha = 0, time = 50 })
+
+    function result:processContents( completionHandler )
+        print('processContents in Blender')
+
+        Runtime:dispatchEvent( { name = 'soundEvent', key = 'process_Blend' } )
+        
+        -- Compute average colour of ingredients
+        local red = 0
+        local green = 0
+        local blue = 0
+        for i = 1,#self.contents do
+        	local ingredient = self.contents[ i ]
+        	local colour = ingredient.colour
+        	red = red + colour[ 1 ]
+        	green = green + colour[ 2 ]
+        	blue = blue + colour[ 3 ]
+        end
+        if #self.contents > 0 then 
+        	red = red / #self.contents 
+        	green = green / #self.contents
+        	blue = blue / #self.contents
+        end
+
+        -- Animate transition to new colour
+        for i = 1, #self.contents do
+        	local ingredient = self.contents[ i ]
+        	print(ingredient.name)
+
+    		local fillingName = 'image/mixer_fill_'..tostring(i)..'.png'
+    		local filling = display.newImageRect( fillingName, blenderWidth, blenderHeight )
+    		filling:setFillColor( unpack( ingredient.colour ) )
+    		filling.alpha = 1
+    		result:insert( filling )
+    		filling:toFront( )
+
+    		self.fillingObjects[ i ]:setFillColor( red, green, blue )
+
+    		transition.to( filling, { alpha = 0, time = 1000, onComplete = function() filling:removeSelf() end })
+
     	end
-    	result.contents = {}
+
+
+        local function onComplete()
+            if completionHandler and 'function' == type(completionHandler) then
+                completionHandler()
+            end
+        end
+     
     end
-
-    function result:addIngredient( ingredient )
-
-    	if #self.contents >= 10 then 
-    		return false 
-    	else
-
-    		table.insert( self.contents, ingredient )
-
-    		local obj = self.fillingObjects[ #self.contents ]
-    		obj:setFillColor( unpack( ingredient.colour ) )
-    		transition.cancel( obj )
-    		transition.to( obj, {alpha = 1, time = 50 })
-    		
-    	end
-    	return true
-    end
-
-
 
     return result
     
