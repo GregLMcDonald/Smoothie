@@ -25,10 +25,10 @@ function Blender.new()
 
 
     function result:processContents( completionHandler )
-        print('processContents in Blender')
+        print("DEBUG",'processContents in Blender')
 
         Runtime:dispatchEvent( { name = 'soundEvent', key = 'process_Blend' } )
-        
+
         -- Compute average colour of ingredients
         local red = 0
         local green = 0
@@ -49,7 +49,8 @@ function Blender.new()
         -- Animate transition to new colour
         for i = 1, #self.contents do
         	local ingredient = self.contents[ i ]
-        	print(ingredient.name)
+        	
+        	print("DEBUG",ingredient.name)
 
     		local fillingName = 'image/mixer_fill_'..tostring(i)..'.png'
     		local filling = display.newImageRect( fillingName, blenderWidth, blenderHeight )

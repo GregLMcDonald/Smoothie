@@ -25,23 +25,27 @@ function scene:create( event )
 
 
     local blender = require( 'Blender' ).new()
-    self.appliance = blender
+    self.currentAppliance = blender
 
-    blender:setPoint( display.contentCenterX, display.contentCenterY )
-  	sceneGroup:insert( blender  )
+    self.currentAppliance:setPoint( display.contentCenterX, display.contentCenterY )
+  	sceneGroup:insert( self.currentAppliance  )
 
 
     local IngredientDisplayObject = require 'IngredientDisplayObject'
-    local ingredientList = require 'ingredientList'
+    local Ingredients = require 'Ingredients'
+
+    local ingredientList
+    local ingredientListKeys
+    ingredientList, ingredientListKeys = Ingredients.getList()
 
     local yBase = 50
     local yStep = 55
 
-    local maxIndex = math.min( #ingredientList.orderedKeys, 10 )
+    local maxIndex = math.min( #ingredientListKeys, 10 )
 
     for i = 1, maxIndex do
 
-    	local key = ingredientList.orderedKeys[ i ]
+    	local key = ingredientListKeys[ i ]
     	local _ingredient = ingredientList[ key ]
 
     	local x
@@ -66,6 +70,8 @@ function scene:create( event )
     		
     		if 'began' == event.phase then
 
+    			Runtime:dispatchEvent( { name = 'soundEvent', key = 'select' } )
+    			
     			local _sample = require( 'DraggableIngredientDisplayObject' ).new( self.ingredient, self.x, self.y, event )
     			
     			sceneGroup:insert( _sample )
@@ -76,9 +82,6 @@ function scene:create( event )
 
     			transition.to( _sample, { xScale = 1.1, yScale = 1.1, time = 1000, transition = easing.outElastic } )
 
-    			Runtime:dispatchEvent( { name = 'soundEvent', key = 'select' } )
-
-
     			function _sample:touch( event )
 
 
@@ -86,13 +89,15 @@ function scene:create( event )
 
     					self:handleTouchMoved( event )
     					
-    					if blender:containsPoint( self.x, self.y ) then
-    					 	if blender.isOver == false then
-    							blender:setOver( true )
-    						end
-    					else
-    						if blender.isOver == true then
-    							blender:setOver( false)
+    					if scene.currentAppliance then
+    						if scene.currentAppliance:containsPoint( self.x, self.y ) then
+    							if scene.currentAppliance.isOver == false then
+    								scene.currentAppliance:setOver( true )
+    							end
+    						else
+    							if scene.currentAppliance.isOver == true then
+    								scene.currentAppliance:setOver( false)
+    							end
     						end
     					end
     					
@@ -101,33 +106,33 @@ function scene:create( event )
 
     					self:handleTouchEnded( event )
 
-    					blender:setOver( false )
-    					if blender:containsPoint( self.x, self.y ) then
+    					if scene.currentAppliance then
+    						scene.currentAppliance:setOver( false )
+    						if scene.currentAppliance:containsPoint( self.x, self.y ) then
 
-    						self:handleAdded( blender.x, blender.y )
+    							self:handleAdded( scene.currentAppliance.x, scene.currentAppliance.y )
     						
-    						blender:addIngredient( self.ingredient )
+    							scene.currentAppliance:addIngredient( self.ingredient )
 
-    						if self.ingredient.name == 'TACO' then
-    							blender:empty()
+    							if self.ingredient.name == 'honey' then
+    								scene.currentAppliance:empty()
+    							end
+
+    						else
+
+    							self:handleUnused()
+
+
     						end
-
-    					else
-
-    						self:handleUnused()
-
-
     					end
-
     					
 
     				end
-
     			end
     			_sample:addEventListener( 'touch', _sample )
 
     			local stage = display.getCurrentStage( )
-    			stage:setFocus( _sample  )
+    			stage:setFocus( _sample  ) --allows sample to track movement of touch
 
     		end
     	end
@@ -143,7 +148,9 @@ function scene:create( event )
 
     function button:touch( event )
     	if 'ended' == event.phase then
-    		scene.appliance:processContents()
+    		if scene.currentAppliance then 
+    			scene.currentAppliance:processContents()
+    		end
     	end
     end
     button:addEventListener( 'touch', button )

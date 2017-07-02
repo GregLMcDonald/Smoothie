@@ -10,13 +10,14 @@ function IngredientDisplayObject.new( ingredient, options )
 
 	displayObject.ingredient = {}
 
+	-- copy table so it won't be accidentally changed downstream
 	for k,v in pairs(ingredient) do
 		displayObject.ingredient[ k ] = v
 	end
 		
 	local image
-	if ingredient.imageFilename then
-		image = display.newImageRect(  ingredient.imageFilename, 50, 50  )	
+	if displayObject.ingredient.imageFilename then
+		image = display.newImageRect(  displayObject.ingredient.imageFilename, 50, 50  )	
 	end
 
 	if image then
@@ -31,8 +32,8 @@ function IngredientDisplayObject.new( ingredient, options )
 
 		displayObject:insert( circle )
 
-		if ingredient.name and string.len( ingredient.name ) >= 4 then
-			local firstLetterOfName = string.upper( string.sub( ingredient.name, 1, 4 ) )
+		if displayObject.ingredient.name and string.len( displayObject.ingredient.name ) >= 4 then
+			local firstLetterOfName = string.upper( string.sub( displayObject.ingredient.name, 1, 4 ) )
 			local letter = display.newText( {
 				text = firstLetterOfName,
 				fontSize = 10,

@@ -27,6 +27,12 @@ function Appliance.new()
 
     function result:addIngredient( ingredient )
 
+        --for k,v in pairs(ingredient) do
+        --    print(k,v)
+        --end
+
+
+
     	if #self.contents >= maxContents then 
     		return false 
     	else

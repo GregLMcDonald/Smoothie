@@ -3,6 +3,10 @@ local DraggableIngredientDisplayObject = {}
 
 function DraggableIngredientDisplayObject.new( ingredient, x, y, event )
 
+	-- ingredient: table returned by ingredientList for a given key
+	-- x,y: initial position of object
+	-- event: used to compute offset for touch
+
 	assert( ingredient, "ingredient cannot be nil in DraggableIngredientDisplayObject.new")
 	local result = require( 'IngredientDisplayObject' ).new( ingredient )
 

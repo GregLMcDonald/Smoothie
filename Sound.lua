@@ -39,7 +39,6 @@ for i=1,#bases do
     local base = bases[ i ]
     local selectSoundFilename = filenameForBase( base )
     if selectSoundFilename then
-        print("loading "..selectSoundFilename)
 	   handles[ base ] = audio.loadSound( selectSoundFilename )
     end
 end
