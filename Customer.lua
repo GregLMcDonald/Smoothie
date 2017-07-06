@@ -99,6 +99,52 @@ local function getPreferredLikedAndDislikedKeySets( ingredients, preferredIngred
 	return preferred, liked, disliked
 end
 
+local function recipeContainsDealBreakers( recipe, dealBreakerProperties )
+	local result = false
+
+	local dealBreakerFound = false
+	for dealBreakerKey,dealBreakerValue in pairs( dealBreakerProperties ) do
+		for i = 1, #recipe.ingredients do
+			local ingredient = recipe.ingredients[ i ]
+			if ingredient[ dealBreakerKey ] == dealBreakerValue then
+				print("DEBUG deal breaker",ingredient.name,dealBreakerKey,dealBreakerValue)
+				dealBreakerFound = true
+				break
+			end
+		end
+		if dealBreakerFound == true then
+			-- Only need one dealBreaker to get a 0 rating
+			result = true
+			break
+		end
+	end
+
+	return result
+end
+local function recipeLacksVariety( recipe )
+
+	local result = false
+
+	local minimumNumberOfIngredientsForVariety = 3
+
+	local distinctIngredients = {}
+	for i = 1,#recipe.ingredients do
+		local ingredient = recipe.ingredients[ i ]
+		if nil == distinctIngredients[ ingredient.name ] then
+			distinctIngredients[ ingredient.name ] = true
+		end
+	end
+	local nDistinctIngredients = 0
+	for k,v in pairs(distinctIngredients) do
+		nDistinctIngredients = nDistinctIngredients + 1
+	end
+	if nDistinctIngredients < minimumNumberOfIngredientsForVariety then
+		print( "DEBUG lacks variety: less than "..tostring(minimumNumberOfIngredientsForVariety).." ingredients" )
+		result = true
+	end
+	return result
+end
+
 
 
 local Customer = {}
@@ -159,59 +205,34 @@ function Customer.new( ingredients, options )
 		local rating = 0
 
 		if 0 == #recipe.ingredients then 
-			return rating
+			return 0
 		end
 
-		-- Check for deal breakers: if any are found, rating is 0
-		local dealBreakerFound = false
-		for dealBreakerKey,dealBreakerValue in pairs( self.dealBreakerProperties ) do
-			for i = 1, #recipe.ingredients do
-				local ingredient = recipe.ingredients[ i ]
-				if ingredient[ dealBreakerKey ] == dealBreakerValue then
-					print("DEBUG deal breaker",ingredient.name,dealBreakerKey,dealBreakerValue)
-					dealBreakerFound = true
-					break
-				end
-			end
-			if dealBreakerFound == true then
-				-- Only need one dealBreaker to get a 0 rating
-				break
-			end
+		if recipeContainsDealBreakers( recipe, self.dealBreakerProperties) then
+			return 0
 		end
-
 		
-		if false == dealBreakerFound then
+		
 
-			local sumOfPreferrenceCoefficientsForIngredients = 0
-			for i = 1, #recipe.ingredients do
-				local ingredient = recipe.ingredients[ i ]
-				local preferrenceCoefficient = self.preferences[ ingredient.name ]
-				sumOfPreferrenceCoefficientsForIngredients = sumOfPreferrenceCoefficientsForIngredients + preferrenceCoefficient
-			end
-
-			local averagePreferrenceCoefficient = sumOfPreferrenceCoefficientsForIngredients / #recipe.ingredients
-			rating = 5 + averagePreferrenceCoefficient
-
-			-- Penalty for lack of variety
-			local distinctIngredients = {}
-			for i = 1,#recipe.ingredients do
-				local ingredient = recipe.ingredients[ i ]
-				if nil == distinctIngredients[ ingredient.name ] then
-					distinctIngredients[ ingredient.name ] = true
-				end
-			end
-			local nDistinctIngredients = 0
-			for k,v in pairs(distinctIngredients) do
-				nDistinctIngredients = nDistinctIngredients + 1
-			end
-			if nDistinctIngredients < 3 then
-				print( "penalty for overly simple recipe" )
-				rating = rating - 1
-			end
-
-
+		local sumOfPreferrenceCoefficientsForIngredients = 0
+		for i = 1, #recipe.ingredients do
+			local ingredient = recipe.ingredients[ i ]
+			local preferrenceCoefficient = self.preferences[ ingredient.name ]
+			sumOfPreferrenceCoefficientsForIngredients = sumOfPreferrenceCoefficientsForIngredients + preferrenceCoefficient
 		end
 
+		local averagePreferrenceCoefficient = sumOfPreferrenceCoefficientsForIngredients / #recipe.ingredients
+		--print(sumOfPreferrenceCoefficientsForIngredients,averagePreferrenceCoefficient)
+		rating = 5 + averagePreferrenceCoefficient
+
+		if recipeLacksVariety( recipe ) then
+			print( "DEBUG penalty for overly simple recipe -1 " )
+			rating = rating - 1
+		end
+
+
+
+		-- Ensure that result is withing expected range
 		if rating < 0 then rating = 0 end
 		if rating > 10 then rating = 10 end
 
