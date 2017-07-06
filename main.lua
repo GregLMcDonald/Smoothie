@@ -6,7 +6,8 @@
 
 display.setStatusBar( display.HiddenStatusBar )
 
-require 'Sound'
+local sound = require( 'Sound' )
+sound:init()
 
 
 local composer = require "composer"

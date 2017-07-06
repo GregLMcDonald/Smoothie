@@ -27,6 +27,9 @@ function scene:create( event )
     local blender = require( 'Blender' ).new()
     self.currentAppliance = blender
 
+
+  
+
     self.currentAppliance:setPoint( display.contentCenterX, display.contentCenterY )
   	sceneGroup:insert( self.currentAppliance  )
 
@@ -37,6 +40,11 @@ function scene:create( event )
     local ingredientList
     local ingredientListKeys
     ingredientList, ingredientListKeys = Ingredients.getList()
+
+    self.customer = require( 'Customer' ).new( ingredientList )
+    for k,v in pairs(self.customer.preferences) do
+    	print(k,v)
+    end
 
     local yBase = 50
     local yStep = 55
@@ -108,7 +116,7 @@ function scene:create( event )
 
     					if scene.currentAppliance then
     						scene.currentAppliance:setOver( false )
-    						if scene.currentAppliance:containsPoint( self.x, self.y ) then
+    						if scene.currentAppliance:containsPoint( self.x, self.y ) and false == scene.currentAppliance:isFull() then
 
     							self:handleAdded( scene.currentAppliance.x, scene.currentAppliance.y )
     						
@@ -149,7 +157,23 @@ function scene:create( event )
     function button:touch( event )
     	if 'ended' == event.phase then
     		if scene.currentAppliance then 
-    			scene.currentAppliance:processContents()
+
+    			local onProcessingCompleted = function()
+    				
+    				local recipe = require( 'Recipe' ).new( scene.currentAppliance.contents, scene.currentAppliance.action )
+    				
+
+    				if scene.customer then
+    					local rating = scene.customer:rateRecipe( recipe )
+    					print("DEBUG rating",rating)
+    				end
+
+
+    			end
+
+    			scene.currentAppliance:processContents( onProcessingCompleted )
+    			
+
     		end
     	end
     end

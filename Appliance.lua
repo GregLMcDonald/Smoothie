@@ -3,7 +3,7 @@ local Appliance = {}
 local width = 200
 local height = 200
 
-local maxContents = 10
+local maxContents = 5
 
 function Appliance.new()
 
@@ -14,6 +14,7 @@ function Appliance.new()
     result.overImage = nil
     result.width = width
     result.height = height
+    result.action = ''
 
 
     function result:empty()
@@ -25,12 +26,11 @@ function Appliance.new()
     	result.contents = {}
     end
 
+    function result:isFull()
+        return #self.contents >= maxContents
+    end
+
     function result:addIngredient( ingredient )
-
-        --for k,v in pairs(ingredient) do
-        --    print(k,v)
-        --end
-
 
 
     	if #self.contents >= maxContents then 
@@ -92,14 +92,16 @@ function Appliance.new()
         display.remove( self )
     end
 
-    function result:processContents( completionHandler )
+    function result:processContents( onCompletion )
         print('processContents')
-        local function onComplete()
-            if completionHandler and 'function' == type(completionHandler) then
-                completionHandler()
-            end
+
+        local _recipe = require( 'Recipe' ).new( self.contents, self.action )
+    
+        if onCompletion and 'function' == type(onCompletion) then
+            onCompletion()
         end
-     
+
+
     end
 
 
