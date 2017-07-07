@@ -1,6 +1,11 @@
 -- Customer.lua
 
 
+-------------------------------------------------------------------------------
+--
+--  PREFERENCE HELPER METHODS
+--
+-------------------------------------------------------------------------------
 local function getKeysWithAssignedPreferenceCoefficients( keys, areLiked, options )
 
 	-- keys: a table of strings used as keys to the ingredient table
@@ -99,52 +104,39 @@ local function getPreferredLikedAndDislikedKeySets( ingredients, preferredIngred
 	return preferred, liked, disliked
 end
 
-local function recipeContainsDealBreakers( recipe, dealBreakerProperties )
-	local result = false
 
-	local dealBreakerFound = false
-	for dealBreakerKey,dealBreakerValue in pairs( dealBreakerProperties ) do
-		for i = 1, #recipe.ingredients do
+-------------------------------------------------------------------------------
+--
+--  METHODS FOR IDENTIFYING 
+--
+-------------------------------------------------------------------------------
+local function getLeastFavoriteIngredientsInRecipe( recipe, preferences )
+
+	if #recipe.ingredients < 1 then return nil end
+
+	local ingredient = recipe.ingredients[ 1 ]
+	local lowestPreferenceCoefficient = preferences[ ingredient.name ]
+	local leastFavoriteIngredientsInRecipe = { ingredient }
+	
+	if #recipe.ingredients > 1 then
+		for i = 2,#recipe.ingredients do
 			local ingredient = recipe.ingredients[ i ]
-			if ingredient[ dealBreakerKey ] == dealBreakerValue then
-				print("DEBUG deal breaker",ingredient.name,dealBreakerKey,dealBreakerValue)
-				dealBreakerFound = true
-				break
+			local preferenceCoefficient = preferences[ ingredient.name ]
+			if preferenceCoefficient < lowestPreferenceCoefficient then
+				lowestPreferenceCoefficient = preferenceCoefficient
+				leastFavoriteIngredientsInRecipe = { ingredient }
+			elseif preferenceCoefficient == lowestPreferenceCoefficient then
+				leastFavoriteIngredientsInRecipe[ #leastFavoriteIngredientsInRecipe + 1 ] = ingredient
 			end
 		end
-		if dealBreakerFound == true then
-			-- Only need one dealBreaker to get a 0 rating
-			result = true
-			break
-		end
 	end
 
-	return result
-end
-local function recipeLacksVariety( recipe )
-
-	local result = false
-
-	local minimumNumberOfIngredientsForVariety = 3
-
-	local distinctIngredients = {}
-	for i = 1,#recipe.ingredients do
-		local ingredient = recipe.ingredients[ i ]
-		if nil == distinctIngredients[ ingredient.name ] then
-			distinctIngredients[ ingredient.name ] = true
-		end
-	end
-	local nDistinctIngredients = 0
-	for k,v in pairs(distinctIngredients) do
-		nDistinctIngredients = nDistinctIngredients + 1
-	end
-	if nDistinctIngredients < minimumNumberOfIngredientsForVariety then
-		print( "DEBUG lacks variety: less than "..tostring(minimumNumberOfIngredientsForVariety).." ingredients" )
-		result = true
-	end
-	return result
+	return leastFavoriteIngredientsInRecipe, lowestPreferenceCoefficient
 end
 
+local function getIngredientsPreferredOverThoseInRecipe( recipe, preferences )
+
+end
 
 
 local Customer = {}
@@ -200,19 +192,10 @@ function Customer.new( ingredients, options )
 	result:assignPreferences( ingredients )
 
 
-
-	function result:rateRecipe( recipe )
-		local rating = 0
-
-		if 0 == #recipe.ingredients then 
-			return 0
-		end
-
-		if recipeContainsDealBreakers( recipe, self.dealBreakerProperties) then
-			return 0
-		end
+	function result:computeAveragePreferrenceCoefficientForRecipe( recipe )
+		local averagePreferrenceCoefficient = 0
 		
-		
+		if 0 == #recipe.ingredients then return averagePreferrenceCoefficient end
 
 		local sumOfPreferrenceCoefficientsForIngredients = 0
 		for i = 1, #recipe.ingredients do
@@ -221,20 +204,30 @@ function Customer.new( ingredients, options )
 			sumOfPreferrenceCoefficientsForIngredients = sumOfPreferrenceCoefficientsForIngredients + preferrenceCoefficient
 		end
 
-		local averagePreferrenceCoefficient = sumOfPreferrenceCoefficientsForIngredients / #recipe.ingredients
-		--print(sumOfPreferrenceCoefficientsForIngredients,averagePreferrenceCoefficient)
-		rating = 5 + averagePreferrenceCoefficient
+		averagePreferrenceCoefficient = sumOfPreferrenceCoefficientsForIngredients / #recipe.ingredients
+		
+		return averagePreferrenceCoefficient
+	end
 
-		if recipeLacksVariety( recipe ) then
-			print( "DEBUG penalty for overly simple recipe -1 " )
-			rating = rating - 1
+
+	function result:rateRecipe( recipe )
+
+		local rating = 0
+		local Rating = require 'Rating'
+
+		if #recipe.ingredients > 0 and false == recipe:hasDealBreakers( self.dealBreakerProperties ) then
+		
+			local averagePreferrenceCoefficient = self:computeAveragePreferrenceCoefficientForRecipe( recipe )	
+			rating = 5 + averagePreferrenceCoefficient
+
+			if recipe:lacksVariety() then rating = rating + Rating.penalties.lacksVariety end
+
 		end
 
 
-
-		-- Ensure that result is withing expected range
-		if rating < 0 then rating = 0 end
-		if rating > 10 then rating = 10 end
+		-- Ensure that result is within expected range
+		if rating < Rating.minValue then rating = Rating.minValue end
+		if rating > Rating.maxValue then rating = Rating.maxValue end
 
 		return rating
 	end
