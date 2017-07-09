@@ -30,10 +30,10 @@ function Blender.new()
         local soundKey = 'process_Blend'
         local sound = require( 'Sound' )
         local duration = sound:getDuration( soundKey )
-       -- Runtime:dispatchEvent( { name = 'soundEvent', key = soundKey } )
+        Runtime:dispatchEvent( { name = 'soundEvent', key = soundKey } )
 
-        print("WARNING: DEBUG blend time set to 0")
-        duration = 0
+        --print("WARNING: DEBUG blend time set to 0")
+        --duration = 0
 
 
         -- Compute average colour of ingredients

@@ -1,4 +1,5 @@
 
+
 -----------------------------------------------------------------------------------------
 --
 -- Title:  scene_Home.lua
@@ -10,58 +11,134 @@
 local composer = require( "composer" )
 local scene = composer.newScene()
 
+local Recipe = require 'Recipe'
+local IngredientDisplayObject = require 'IngredientDisplayObject'
+local DraggableIngredientDisplayObject = require 'DraggableIngredientDisplayObject'
+local Ingredients = require 'Ingredients'
 
-function scene:create( event )
+local function addAppliancesToScene()
 
-    local sceneGroup = self.view
+	local sceneGroup = scene.view
 
-    local bleed = display.newRect(display.contentCenterX, display.contentCenterY, 1.25 * display.contentWidth, 1.25 * display.contentHeight)
-    bleed:setFillColor( 0.3 )
-    sceneGroup:insert( bleed )
+	local appliances = {
+    	require( 'Appliance.Blender' ).new(),
+    	require( 'Appliance.Dummy' ).new(),
+    	require( 'Appliance.Dummy' ).new(),
+    	require( 'Appliance.Dummy' ).new(),
+    	require( 'Appliance.Blender' ).new(),
+    }
 
-    local background = display.newRect( display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight )
-    background:setFillColor( 1,.98,.98 )
-    sceneGroup:insert( background )
+    local shelfY = display.contentHeight - 95
+    local applianceWidthOnShelf = 0.25 * appliances[1].width
+    local shelfHorizontalPadding = (display.contentWidth - #appliances * applianceWidthOnShelf) / (#appliances + 1)
+    local shelfX = shelfHorizontalPadding + 0.5 * applianceWidthOnShelf 
+    for i = 1, #appliances do
+    	local appliance = appliances[ i ]
+
+    	
+    	appliance:setActivePosition( 218, 230 )
+    	appliance:setShelfScale( 0.25 )
+    	appliance:setShelfPosition( shelfX, shelfY )
+
+    	local outline = display.newRoundedRect( shelfX, shelfY, applianceWidthOnShelf+5, applianceWidthOnShelf+5, 5 )
+    	outline:setStrokeColor( 0 )
+    	outline.strokeWidth = 1
+    	sceneGroup:insert(outline)
+    	sceneGroup:insert( appliance )
+
+    	shelfX = shelfX + applianceWidthOnShelf + shelfHorizontalPadding
+    	appliance:setOnShelf( true, { animate = false } )
 
 
-    local blender = require( 'Blender' ).new()
-    self.currentAppliance = blender
+    	function appliance:tap()
+
+    		if appliance:isOnShelf() then
+
+    			Runtime:dispatchEvent( { name = 'soundEvent', key = 'select' } )
+
+    			if scene.currentAppliance then
+
+    				transition.cancel( scene.currentAppliance )
+
+    				for i = 1, #scene.currentAppliance.contents do
+						local ingredient = scene.currentAppliance.contents[ i ]
+						appliance:addIngredient( ingredient )    					
+    				end
+    				scene.currentAppliance:empty()
+    				scene.currentAppliance:setOnShelf( true )
+
+    			end
+
+    			scene.currentAppliance = appliance
+    			appliance:setOnShelf( false )
+    			
+    		end
+    	end
+    	appliance:addEventListener( 'tap', appliance )
 
 
-  
 
-    self.currentAppliance:setPoint( display.contentCenterX, display.contentCenterY )
-  	sceneGroup:insert( self.currentAppliance  )
+    end
 
 
-    local IngredientDisplayObject = require 'IngredientDisplayObject'
-    local Ingredients = require 'Ingredients'
+
+    scene.currentAppliance = appliances[ 1 ]
+    scene.currentAppliance:setOnShelf( false, { animate = false } )
+end
+local function addIngredientsChooserToScene()
+	local sceneGroup = scene.view
+
+	local width = 114
+	local height = 300
+
+	local widget = require 'widget'
+	local ingredientsChooser = widget.newScrollView( {
+		width = width,
+		height = height,
+		verticalScrollDisabled = true ,
+		backgroundColor = { 0, 0, 0 },
+		} )
+	ingredientsChooser.x = 2 + 0.5 * width
+	ingredientsChooser.y = 50 + 0.5 * height
+
+	sceneGroup:insert( ingredientsChooser )
+
+
+	function ingredientsChooser:getPositionInParentCoordinatesOfPoint(x,y)
+		local xInParent
+		local yInParent
+
+		local contentX 
+		local contentY
+		contentX, contentY = self:getContentPosition( )
+
+		xInParent = self.x - 0.5 * width + x + contentX 
+		yInParent = self.y - 0.5 * height + y + contentY
+
+		return xInParent, yInParent
+	end
+
+	
 
     local ingredientList
     local ingredientListKeys
     ingredientList, ingredientListKeys = Ingredients.getList()
 
-    self.customer = require( 'Customer' ).new( ingredientList )
-    for k,v in pairs(self.customer.preferences) do
-    	print(k,v)
-    end
 
-    local yBase = 50
+    local yBase = 35
     local yStep = 55
 
-    local maxIndex = math.min( #ingredientListKeys, 10 )
+    local xBase = 5 + 25
+    local xStep = 55
+
+   local maxIndex = #ingredientListKeys
 
     for i = 1, maxIndex do
 
     	local key = ingredientListKeys[ i ]
     	local _ingredient = ingredientList[ key ]
 
-    	local x
-    	if i <= 5 then
-    		x = 40
-    	else
-    		x = display.contentWidth - 40
-    	end
+    	local x = xBase + ( math.floor( (i-1) / 5 ) * xStep )
 
     	local y = yBase + ( (i-1) % 5 ) * yStep
 
@@ -72,15 +149,21 @@ function scene:create( event )
 
     	y = y + yStep
 
-    	sceneGroup:insert( _ingredientDisplayObject )
+    	ingredientsChooser:insert( _ingredientDisplayObject )
 
     	function _ingredientDisplayObject:touch( event )
     		
     		if 'began' == event.phase then
 
     			Runtime:dispatchEvent( { name = 'soundEvent', key = 'select' } )
+
+   
     			
-    			local _sample = require( 'DraggableIngredientDisplayObject' ).new( self.ingredient, self.x, self.y, event )
+    			local x
+    			local y
+    			x,y = ingredientsChooser:getPositionInParentCoordinatesOfPoint(self.x,self.y)
+
+    			local _sample = DraggableIngredientDisplayObject.new( self.ingredient, x, y, event.x, event.y )
     			
     			sceneGroup:insert( _sample )
     			_sample:toFront( )
@@ -143,15 +226,84 @@ function scene:create( event )
     			stage:setFocus( _sample  ) --allows sample to track movement of touch
 
     		end
+    		return true
     	end
     	_ingredientDisplayObject:addEventListener( 'touch', _ingredientDisplayObject )
     end
+end
+local function addIngredientLabelToScene()
+	local sceneGroup = scene.view
+
+	local ingredientLabel = display.newText( {
+		text = 'Ingredient',
+		fontSize = 20,
+		width = 200,
+		align = 'center',
+		})
+	ingredientLabel:setFillColor( 0 )
+	ingredientLabel.x = 218
+	ingredientLabel.y = 100
+
+	function ingredientLabel:changeInDraggedIngredient( event )
+		local oldLabel = event.oldLabel or ''
+		local newLabel = event.newLabel or ''
+
+		transition.cancel( ingredientLabel )
+		ingredientLabel.alpha = 0
+		ingredientLabel.text = newLabel
+		transition.to( ingredientLabel, {alpha = 1, time = 150 })
 
 
-    local button = display.newRect( 0, 0, 100, 75 )
+		local oldLabelObject = display.newText( {
+		text = oldLabel,
+		fontSize = 20,
+		width = 200,
+		align = 'center',
+		})
+		ingredientLabel:setFillColor( 0 )
+		ingredientLabel.x = 218
+		ingredientLabel.y = 100
+		transition.to( oldLabelObject, { alpha = 0, time = 150, onComplete = function() oldLabelObject:removeSelf() end  })
+
+
+
+	end
+	Runtime:addEventListener( 'changeInDraggedIngredient', ingredientLabel )
+
+end
+
+function scene:create( event )
+
+    local sceneGroup = self.view
+
+    local bleed = display.newRect(display.contentCenterX, display.contentCenterY, 1.25 * display.contentWidth, 1.25 * display.contentHeight)
+    bleed:setFillColor( .8 )
+    sceneGroup:insert( bleed )
+
+    local background = display.newRect( display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight )
+    background:setFillColor( 1 )
+    sceneGroup:insert( background )
+
+
+  	addAppliancesToScene()
+
+    addIngredientsChooserToScene()
+    addIngredientLabelToScene()
+
+    
+    local ingredientList
+    local ingredientListKeys
+    ingredientList, ingredientListKeys = Ingredients.getList()
+
+    self.customer = require( 'Customer' ).new( ingredientList )
+    for k,v in pairs(self.customer.preferences) do
+    	print(k,v)
+    end
+
+    local button = display.newRect( 0, 0, 200, 60 )
     button:setFillColor( 0,1,0 )
     button.x = display.contentCenterX
-    button.y = display.contentHeight - 0.5 * button.contentHeight - 10
+    button.y = display.contentHeight - 0.5 * button.contentHeight
     sceneGroup:insert(button)
 
     function button:touch( event )
@@ -160,15 +312,12 @@ function scene:create( event )
 
     			local onProcessingCompleted = function()
     				
-    				local recipe = require( 'Recipe' ).new( scene.currentAppliance.contents, scene.currentAppliance.action )
+    				local recipe = Recipe.new( scene.currentAppliance.contents, scene.currentAppliance.action )
     				
-
     				if scene.customer then
     					local rating = scene.customer:rateRecipe( recipe )
     					print("DEBUG rating",rating)
     				end
-
-
     			end
 
     			scene.currentAppliance:processContents( onProcessingCompleted )

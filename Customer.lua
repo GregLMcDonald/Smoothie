@@ -110,32 +110,71 @@ end
 --  METHODS FOR IDENTIFYING 
 --
 -------------------------------------------------------------------------------
-local function getLeastFavoriteIngredientsInRecipe( recipe, preferences )
+
+local function getIngredientsAtExtremumOfPreferencesInRecipe( recipe, preferences, favorite )
 
 	if #recipe.ingredients < 1 then return nil end
 
+	local compare
+	if nil == favorite or true == favorite then
+		compare = function( a, b ) return a > b end
+	else
+		compare = function( a, b ) return a <= b end
+	end
+
 	local ingredient = recipe.ingredients[ 1 ]
-	local lowestPreferenceCoefficient = preferences[ ingredient.name ]
-	local leastFavoriteIngredientsInRecipe = { ingredient }
+	local preferenceCoefficientExtremum = preferences[ ingredient.name ]
+	local ingredientsAtExtremum = { ingredient }
 	
 	if #recipe.ingredients > 1 then
 		for i = 2,#recipe.ingredients do
 			local ingredient = recipe.ingredients[ i ]
 			local preferenceCoefficient = preferences[ ingredient.name ]
-			if preferenceCoefficient < lowestPreferenceCoefficient then
-				lowestPreferenceCoefficient = preferenceCoefficient
-				leastFavoriteIngredientsInRecipe = { ingredient }
-			elseif preferenceCoefficient == lowestPreferenceCoefficient then
-				leastFavoriteIngredientsInRecipe[ #leastFavoriteIngredientsInRecipe + 1 ] = ingredient
+			if compare( preferenceCoefficient, preferenceCoefficientExtremum ) then
+				preferenceCoefficientExtremum = preferenceCoefficient
+				ingredientsAtExtremum = { ingredient }
+			elseif preferenceCoefficient == preferenceCoefficientExtremum then
+				ingredientsAtExtremum[ #ingredientsAtExtremum + 1 ] = ingredient
 			end
 		end
 	end
 
-	return leastFavoriteIngredientsInRecipe, lowestPreferenceCoefficient
+	return ingredientsAtExtremum, preferenceCoefficientExtremum
 end
 
 local function getIngredientsPreferredOverThoseInRecipe( recipe, preferences )
+	
+	-- Copy preferences table
+	local copyOfPreferences = {}
+	for k,v in pairs(preference) do
+		copyOfPreferences[k] = v
+	end
 
+	-- Remove ingredients used in recipe from the copy
+	for i = 1, #recipe.ingredients do
+		local ingredient = recipe.ingredients[ i ]
+		copyOfPreferences[ ingredient.name ] = nil
+	end
+
+	-- For each ingredient used in recipe, identify any unused ingredients that would
+	-- be preferable
+	local preferableIngredientsForTheRecipe = {}
+
+	for i = 1, #recipe.ingredients do
+
+		local ingredient = recipe.ingredients[ i ]
+		
+		if nil == preferableIngredientsForTheRecipe[ ingredient.name ] then
+		
+			local preferableIngredients = {}
+			for ingredientName, preferenceCoefficient in pairs(_preferences) do
+				if preferences[ ingredient.name ] < preferenceCoefficient then
+					table.insert( preferableIngredients, ingredientName )
+				end
+				preferableIngredientsForTheRecipe[ ingredient.name ] = preferableIngredients
+			end
+		end
+	end
 end
 
 
@@ -212,24 +251,39 @@ function Customer.new( ingredients, options )
 
 	function result:rateRecipe( recipe )
 
-		local rating = 0
+		for k,v in pairs(recipe.ingredients) do
+			print(k,v.name)
+		end
+
+
+		local fav, coeff = getIngredientsAtExtremumOfPreferencesInRecipe( recipe, self.preferences, true )
+		if fav then
+			print("FAV ",fav[1].name,coeff)
+		end
+		fav,coeff = getIngredientsAtExtremumOfPreferencesInRecipe( recipe, self.preferences, false )
+		if fav then
+			print("LEAST FAV ",fav[1].name, coeff)
+		end
+
 		local Rating = require 'Rating'
+		
+		local myRating = Rating.minValue
 
 		if #recipe.ingredients > 0 and false == recipe:hasDealBreakers( self.dealBreakerProperties ) then
 		
 			local averagePreferrenceCoefficient = self:computeAveragePreferrenceCoefficientForRecipe( recipe )	
-			rating = 5 + averagePreferrenceCoefficient
+			myRating = 5 + averagePreferrenceCoefficient
 
-			if recipe:lacksVariety() then rating = rating + Rating.penalties.lacksVariety end
+			if recipe:lacksVariety() then myRating = myRating - Rating.penalty.forLackingVariety end
 
 		end
 
 
-		-- Ensure that result is within expected range
-		if rating < Rating.minValue then rating = Rating.minValue end
-		if rating > Rating.maxValue then rating = Rating.maxValue end
+		if myRating < Rating.minValue then myRating = Rating.minValue end
+		if myRating > Rating.maxValue then myRating = Rating.maxValue end
 
-		return rating
+		return myRating
+
 	end
 
 
