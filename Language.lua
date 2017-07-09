@@ -4,18 +4,20 @@ local Language = {}
 function Language.getPreference()
 
 	local lang = system.getPreference( 'locale', 'language' )
-	
+	print('lang',lang)
 	if lang then
 	
-		if lang == 'English' then
-			lang = 'en'
-		elseif lang == 'French' then
-			lang = 'fr'
+		if lang == 'English' or lang == 'en' then
+			lang = 'lang_en'
+		elseif lang == 'French' or lang == 'fr' then
+			lang = 'lang_fr'
+		else
+			lang = 'lang_en'
 		end
 	
 	else
 	
-		lang = 'default'
+		lang = 'lang_en'
 	
 	end
 

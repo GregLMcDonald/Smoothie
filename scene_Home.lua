@@ -16,6 +16,10 @@ local IngredientDisplayObject = require 'IngredientDisplayObject'
 local DraggableIngredientDisplayObject = require 'DraggableIngredientDisplayObject'
 local Ingredients = require 'Ingredients'
 
+local Language = require 'Language'
+local preferredLanguage = Language.getPreference()
+print('preferredLanguage',preferredLanguage)
+
 local function addAppliancesToScene()
 
 	local sceneGroup = scene.view
@@ -96,12 +100,20 @@ local function addIngredientsChooserToScene()
 		width = width,
 		height = height,
 		verticalScrollDisabled = true ,
-		backgroundColor = { 0, 0, 0 },
+		backgroundColor = { 1, 1, 1 },
 		} )
 	ingredientsChooser.x = 2 + 0.5 * width
 	ingredientsChooser.y = 50 + 0.5 * height
 
 	sceneGroup:insert( ingredientsChooser )
+
+	local chooserOutline = display.newRoundedRect( 0, 0, 118, 304, 5 )
+	chooserOutline:setStrokeColor( 0 )
+	chooserOutline.strokeWidth = 1
+	chooserOutline.fill = nil
+	chooserOutline.x = ingredientsChooser.x
+	chooserOutline.y = ingredientsChooser.y
+	sceneGroup:insert( chooserOutline )
 
 
 	function ingredientsChooser:getPositionInParentCoordinatesOfPoint(x,y)
@@ -158,6 +170,7 @@ local function addIngredientsChooserToScene()
     			Runtime:dispatchEvent( { name = 'soundEvent', key = 'select' } )
 
    
+   				Runtime:dispatchEvent( { name = 'changeInDraggedIngredient', oldLabel = '', newLabel = self.ingredient[ preferredLanguage ].sampleForm } )
     			
     			local x
     			local y
@@ -194,6 +207,8 @@ local function addIngredientsChooserToScene()
     					
 
     				elseif 'ended' == event.phase then
+
+    					Runtime:dispatchEvent( { name = 'changeInDraggedIngredient', oldLabel = self.ingredient[ preferredLanguage ].sampleForm, newLabel = '' } )
 
     					self:handleTouchEnded( event )
 
@@ -243,6 +258,7 @@ local function addIngredientLabelToScene()
 	ingredientLabel:setFillColor( 0 )
 	ingredientLabel.x = 218
 	ingredientLabel.y = 100
+	ingredientLabel.preferedSize = 20
 
 	function ingredientLabel:changeInDraggedIngredient( event )
 		local oldLabel = event.oldLabel or ''
@@ -251,7 +267,8 @@ local function addIngredientLabelToScene()
 		transition.cancel( ingredientLabel )
 		ingredientLabel.alpha = 0
 		ingredientLabel.text = newLabel
-		transition.to( ingredientLabel, {alpha = 1, time = 150 })
+		ingredientLabel.size = ingredientLabel.preferedSize
+		transition.to( ingredientLabel, {alpha = 1, time = 350 })
 
 
 		local oldLabelObject = display.newText( {
@@ -263,7 +280,7 @@ local function addIngredientLabelToScene()
 		ingredientLabel:setFillColor( 0 )
 		ingredientLabel.x = 218
 		ingredientLabel.y = 100
-		transition.to( oldLabelObject, { alpha = 0, time = 150, onComplete = function() oldLabelObject:removeSelf() end  })
+		transition.to( oldLabelObject, { alpha = 0, time = 350, onComplete = function() oldLabelObject:removeSelf() end  })
 
 
 
@@ -277,7 +294,7 @@ function scene:create( event )
     local sceneGroup = self.view
 
     local bleed = display.newRect(display.contentCenterX, display.contentCenterY, 1.25 * display.contentWidth, 1.25 * display.contentHeight)
-    bleed:setFillColor( .8 )
+    bleed:setFillColor( 1 )
     sceneGroup:insert( bleed )
 
     local background = display.newRect( display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight )
