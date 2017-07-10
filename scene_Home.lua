@@ -15,7 +15,6 @@ local Recipe = require 'Recipe'
 local IngredientDisplayObject = require 'IngredientDisplayObject'
 local DraggableIngredientDisplayObject = require 'DraggableIngredientDisplayObject'
 local Ingredients = require 'Ingredients'
-local CustomerPanel = require 'CustomerPanel'
 
 local Language = require 'Language'
 local preferredLanguage = Language.getPreference()
@@ -321,12 +320,15 @@ function scene:create( event )
     	print(k,v)
     end
 
-    local customerPanel = CustomerPanel.new( self.customer )
+    local customerPanel = require('UI.CustomerPanel').new( self.customer )
     customerPanel.x = display.contentCenterX
     customerPanel.y = 25
     sceneGroup:insert( customerPanel )
-    timer.performWithDelay( 1000, function() customerPanel:setPatience(0.14) end )
-    timer.performWithDelay( 2000, function() customerPanel:setRating(3) end)
+   
+    timer.performWithDelay( 1000, function() customerPanel:setPatience(0.44) end )
+    timer.performWithDelay( 2000, function() customerPanel:setRating(7) end)
+    timer.performWithDelay( 3000, function() customerPanel:setLogButtonEnabled( false ) end )
+        timer.performWithDelay( 4000, function() customerPanel:setLogButtonEnabled( true ) end )
 
     local button = display.newRect( 0, 0, 200, 60 )
     button:setFillColor( 0,1,0 )

@@ -42,7 +42,7 @@ function CustomerPanel.new( customer )
 	result:insert( patienceLabel )
 
 	
-	local patienceDisplay = require( 'patienceDisplay' ).new()
+	local patienceDisplay = require( 'UI.patienceDisplay' ).new()
 	patienceDisplay.x = patienceLabel.x + patienceLabel.contentWidth + 3
 	patienceDisplay.y = patienceLabel.y
 	result:insert( patienceDisplay )
@@ -62,7 +62,7 @@ function CustomerPanel.new( customer )
 	result:insert( ratingLabel ) 
 
 
-	local ratingDisplay = require( 'RatingDisplay' ).new()
+	local ratingDisplay = require( 'UI.RatingDisplay' ).new()
 	local ratingScale = 100 / ratingDisplay.width
 	ratingDisplay.xScale = ratingScale
 	ratingDisplay.yScale = ratingScale
@@ -74,15 +74,13 @@ function CustomerPanel.new( customer )
 		ratingDisplay:setRating( value )
 	end
 
-
-	local logButton = display.newImageRect( 'image/ui/book.png', 40, 40 )
+	local logButton = require('UI.LogButtonWidget').new()
 	logButton.x = 138
 	result:insert( logButton )
-	function logButton:tap()
-		Runtime:dispatchEvent( { name = 'soundEvent', key = 'select' } )
-		Runtime:dispatchEvent( { name = 'logButtonTapped' } )
+	function result:setLogButtonEnabled( state )
+		logButton:setEnabled( state )
 	end
-	logButton:addEventListener( 'tap', logButton )
+
 
 	return result
 
