@@ -15,7 +15,63 @@ function Appliance.new()
     result.width = width
     result.height = height
     result.action = ''
+    
+    local isOnShelf = false
 
+
+    local shelfX = 0
+    local shelfY = 0
+    function result:setShelfPosition( x, y )
+        shelfX = x
+        shelfY = y
+    end
+    local shelfScale = 1
+    function result:setShelfScale( scale )
+        shelfScale = scale
+    end
+
+    local activeX = 0
+    local activeY = 0
+    function result:setActivePosition( x, y )
+        activeX = x
+        activeY = y
+    end
+    local activeScale = 1
+    function result:setActiveScale( scale )
+        activeScale = scale
+    end
+
+    function result:setOnShelf( state, options )
+        
+        local options = options or {}
+
+        local transitionTime = 300
+        if options.animate == false then
+            transitionTime = 0
+        end
+
+        if state == true then
+            
+            local function onComplete()
+                self:setPosition( shelfX, shelfY )
+            end
+            transition.to( self, { x = shelfX, y = shelfY, xScale = shelfScale, yScale = shelfScale, time = transitionTime, transition = easing.outBack, onComplete = onComplete })
+            
+        else
+
+            local function onComplete()
+                self:setPosition( activeX, activeY )
+            end
+            transition.to( self, { x = activeX, y = activeY, xScale = activeScale, yScale = activeScale, time = transitionTime, transition = easing.outBack, onComplete = onComplete })
+            
+        end
+
+        isOnShelf = state
+
+    end
+    function result:isOnShelf()
+        return isOnShelf
+    end
 
     function result:empty()
     	for i = 1, #self.fillingObjects do
@@ -66,7 +122,7 @@ function Appliance.new()
         end
     end
 
-    function result:setPoint( x, y )
+    function result:setPosition( x, y )
         self.x = x
         self.y = y
         self.minX = x - 0.5 * width
@@ -74,7 +130,7 @@ function Appliance.new()
         self.minY = y - 0.5 * height
         self.maxY = y + 0.5 * height
     end
-    result:setPoint(0,0)
+    result:setPosition(0,0)
 
     function result:containsPoint( x, y )
         if x >= self.minX and x <= self.maxX and y >= self.minY and y <= self.maxY then
@@ -93,7 +149,7 @@ function Appliance.new()
     end
 
     function result:processContents( onCompletion )
-        print('processContents')
+        print('processContents',self.action)
 
         local _recipe = require( 'Recipe' ).new( self.contents, self.action )
     

@@ -286,8 +286,9 @@ local function addIngredientLabelToScene()
 
 	end
 	Runtime:addEventListener( 'changeInDraggedIngredient', ingredientLabel )
-
 end
+
+
 
 function scene:create( event )
 
