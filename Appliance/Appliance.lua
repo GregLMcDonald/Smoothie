@@ -1,7 +1,7 @@
 local Appliance = {}
 
-local width = 200
-local height = 200
+local width = 160
+local height = 160
 
 local maxContents = 5
 
@@ -15,7 +15,8 @@ function Appliance.new()
     result.width = width
     result.height = height
     result.action = ''
-    
+    result.isLocked = false
+
     local isOnShelf = false
 
 
@@ -73,6 +74,16 @@ function Appliance.new()
         return isOnShelf
     end
 
+    function result:setLocked( state, time )
+        if self.lockImage == nil then
+            local lockImage = display.newImageRect( 'image/appliances/lock.png', width, height )
+            if lockImage then
+                self.lockImage = lockImage
+                self:insert( lockImage )
+                lockImage:toFront( )
+            end
+        end
+    end
     function result:empty()
     	for i = 1, #self.fillingObjects do
     		local obj = self.fillingObjects[ i ]

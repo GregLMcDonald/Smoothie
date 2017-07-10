@@ -217,6 +217,8 @@ function Customer.new( ingredients, options )
 
 	local result = {}
 
+	result.log = {}
+
 	result.avatarImageFilename = getAvatarImageFilename()
 
 	local ingredients = ingredients or {}
@@ -283,6 +285,15 @@ function Customer.new( ingredients, options )
 		return averagePreferrenceCoefficient
 	end
 
+	function result:addToLog( recipe, rating, comments )
+		local logEntry = {
+			recipe = recipe,
+			rating = rating,
+			comments = comments,
+		}
+		table.insert( self.log, logEntry )
+	end
+
 
 	function result:rateRecipe( recipe )
 
@@ -318,14 +329,13 @@ function Customer.new( ingredients, options )
 		if myRating > Rating.maxValue then myRating = Rating.maxValue end
 
 		return myRating
-
 	end
 
 
-	function result:respondToRecipe( recipe )
-		local response = ""
+	function result:commentOnRecipe( recipe )
+		local result = ""
 
-		return response
+		return result
 	end
 
 

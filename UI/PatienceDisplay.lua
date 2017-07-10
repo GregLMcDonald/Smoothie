@@ -4,12 +4,12 @@ function PatienceDisplay.new()
 
 	local result = display.newGroup()
 
-	local patienceBg = display.newRect( 0, 0, 100, 15 )
+	local patienceBg = display.newRect( 0, 0, 100, 12 )
 	patienceBg.anchorX = 0
 	patienceBg:setFillColor( 0.7 )
 	result:insert( patienceBg )
 
-	local patienceBar = display.newRect( 0, 0, 100, 15 )
+	local patienceBar = display.newRect( 0, 0, 100, 12 )
 	patienceBar.anchorX = 0
 	patienceBar:setFillColor( 0, .5, 0 )
 	result:insert( patienceBar )

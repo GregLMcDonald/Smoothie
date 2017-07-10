@@ -1,11 +1,13 @@
-local LogButtonWidget = {}
+local EmptyApplianceButtonWidget = {}
 
-function LogButtonWidget.new()
+function EmptyApplianceButtonWidget.new()
+
+	print("EmptyApplianceButtonWidget.new")
 	
 	local result = display.newGroup()
 
-	local grayImage = display.newImageRect( 'image/ui/bookGray.png', 40, 40 )
-	local colourImage = display.newImageRect( 'image/ui/book.png', 40, 40 )
+	local grayImage = display.newImageRect( 'image/ui/garbageGray.png', 40, 40 )
+	local colourImage = display.newImageRect( 'image/ui/garbage.png', 40, 40 )
 
 
 	result:insert( grayImage )
@@ -36,8 +38,8 @@ function LogButtonWidget.new()
 			
 		else
 
-			--Runtime:dispatchEvent( { name = 'soundEvent', key = 'select' } )
-			Runtime:dispatchEvent( { name = 'logButtonTapped' } )
+			Runtime:dispatchEvent( { name = 'soundEvent', key = 'Bleep_04' } )
+			Runtime:dispatchEvent( { name = 'emptyApplianceButtonTapped' } )
 		end
 	end
 	result:addEventListener( 'tap', result )
@@ -46,4 +48,4 @@ function LogButtonWidget.new()
 
 end
 
-return LogButtonWidget
+return EmptyApplianceButtonWidget

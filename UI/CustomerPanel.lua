@@ -14,7 +14,8 @@ function CustomerPanel.new( customer )
 
 	local bg = display.newRect( 0, 0, 320, 50 )
 	if bg then
-		bg:setFillColor( 0.9, 0.9, 0.9 )
+		--bg:setFillColor( 0.9, 0.9, 0.9 )
+		bg:setFillColor( 0 )
 		result:insert( bg )
 	end
 
@@ -35,7 +36,7 @@ function CustomerPanel.new( customer )
 		text = _label,
 		fontSize = 12,
 	})
-	patienceLabel:setFillColor( 0 )
+	patienceLabel:setFillColor( 1 )
 	patienceLabel.anchorX = 0
 	patienceLabel.x = -110
 	patienceLabel.y = 2 + 0.5 * patienceLabel.contentHeight
@@ -55,7 +56,7 @@ function CustomerPanel.new( customer )
 		text = _label,
 		fontSize = 12,
 		})
-	ratingLabel:setFillColor( 0 )
+	ratingLabel:setFillColor( 1 )
 	ratingLabel.anchorX = 0
 	ratingLabel.x = -110
 	ratingLabel.y = -2 - 0.5 * ratingLabel.contentHeight
@@ -77,8 +78,13 @@ function CustomerPanel.new( customer )
 	local logButton = require('UI.LogButtonWidget').new()
 	logButton.x = 138
 	result:insert( logButton )
-	function result:setLogButtonEnabled( state )
-		logButton:setEnabled( state )
+	if #customer.log < 1 then
+		logButton:setEnabled( false, 0 )
+	else
+		logButton:setEnabled( true, 0 )
+	end
+	function result:setLogButtonEnabled( state, time )
+		logButton:setEnabled( state, time )
 	end
 
 

@@ -1,7 +1,7 @@
 local Blender = {}
 
-local blenderWidth = 200
-local blenderHeight = 200
+local blenderWidth = 160
+local blenderHeight = 160
 
 local imageDir = 'image/appliances/'
 

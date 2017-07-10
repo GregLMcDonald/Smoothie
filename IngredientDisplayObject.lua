@@ -5,6 +5,7 @@ function IngredientDisplayObject.new( ingredient, options )
 	assert( ingredient , "ingregient cannot be nil in IngredientDisplayObject.new" )
 
 	local options = options or {}
+	local isLocked = options.isLocked or false
 
 	local displayObject = display.newGroup( )
 
@@ -17,10 +18,13 @@ function IngredientDisplayObject.new( ingredient, options )
 		
 	local image
 	if displayObject.ingredient.imageFilename then
-		image = display.newImageRect(  displayObject.ingredient.imageFilename, 50, 50  )	
+		image = display.newImageRect(  displayObject.ingredient.imageFilename, 50, 50  )
+
 	end
 
 	if image then
+		displayObject.image = image
+		
 		displayObject:insert( image )
 	else
 
@@ -44,6 +48,23 @@ function IngredientDisplayObject.new( ingredient, options )
 
 	end
 
+	function displayObject:setLocked( state )
+		displayObject.isLocked = state
+		if true == state then 
+			if displayObject.image then
+				displayObject.image.fill.effect = "filter.grayscale"
+			end
+			displayObject.alpha = 0.3
+		else
+			if displayObject.image then
+				displayObject.image.fill.effect = nil
+				
+			end
+			displayObject.alpha = 1
+		end
+	end
+
+	displayObject:setLocked( isLocked )
 	
 
 	return displayObject

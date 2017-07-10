@@ -32,15 +32,16 @@ local function addAppliancesToScene()
     	require( 'Appliance.Blender' ).new(),
     }
 
-    local shelfY = display.contentHeight - 95
+    local shelfY = display.contentHeight - 75
     local applianceWidthOnShelf = 0.25 * appliances[1].width
+    print('applianceWidthOnShelf',applianceWidthOnShelf)
     local shelfHorizontalPadding = (display.contentWidth - #appliances * applianceWidthOnShelf) / (#appliances + 1)
     local shelfX = shelfHorizontalPadding + 0.5 * applianceWidthOnShelf 
     for i = 1, #appliances do
     	local appliance = appliances[ i ]
 
     	
-    	appliance:setActivePosition( 218, 230 )
+    	appliance:setActivePosition( 160, 295 )
     	appliance:setShelfScale( 0.25 )
     	appliance:setShelfPosition( shelfX, shelfY )
 
@@ -92,8 +93,8 @@ end
 local function addIngredientsChooserToScene()
 	local sceneGroup = scene.view
 
-	local width = 114
-	local height = 300
+	local width = 320
+	local height = 160
 
 	local widget = require 'widget'
 	local ingredientsChooser = widget.newScrollView( {
@@ -102,19 +103,20 @@ local function addIngredientsChooserToScene()
 		verticalScrollDisabled = true ,
 		backgroundColor = { 1, 1, 1 },
 		} )
-	ingredientsChooser.x = 2 + 0.5 * width
+	ingredientsChooser.x = 0.5 * width
 	ingredientsChooser.y = 50 + 0.5 * height
 
 	sceneGroup:insert( ingredientsChooser )
 
-	local chooserOutline = display.newRoundedRect( 0, 0, 118, 304, 5 )
+	--[[
+    local chooserOutline = display.newRoundedRect( 0, 0, 118, 304, 5 )
 	chooserOutline:setStrokeColor( 0 )
 	chooserOutline.strokeWidth = 1
 	chooserOutline.fill = nil
 	chooserOutline.x = ingredientsChooser.x
 	chooserOutline.y = ingredientsChooser.y
 	sceneGroup:insert( chooserOutline )
-
+    ]]
 
 	function ingredientsChooser:getPositionInParentCoordinatesOfPoint(x,y)
 		local xInParent
@@ -137,24 +139,33 @@ local function addIngredientsChooserToScene()
     ingredientList, ingredientListKeys = Ingredients.getList()
 
 
-    local yBase = 35
-    local yStep = 55
+    local yBase = 30
+    local yStep = 50
 
     local xBase = 5 + 25
     local xStep = 55
 
    local maxIndex = #ingredientListKeys
+   local ingredientsPerColumn = 3
 
     for i = 1, maxIndex do
 
     	local key = ingredientListKeys[ i ]
     	local _ingredient = ingredientList[ key ]
 
-    	local x = xBase + ( math.floor( (i-1) / 5 ) * xStep )
+    	local x = xBase + ( math.floor( (i-1) / ingredientsPerColumn ) * xStep )
 
-    	local y = yBase + ( (i-1) % 5 ) * yStep
+    	local y = yBase + ( (i-1) % ingredientsPerColumn ) * yStep
 
-    	local _ingredientDisplayObject = IngredientDisplayObject.new( _ingredient )
+        local isIngredientLocked = false
+        --if i > 5 then
+        --    isIngredientLocked = true
+        --end
+
+        if i % 2 == 0 then
+            isIngredientLocked = true
+        end
+    	local _ingredientDisplayObject = IngredientDisplayObject.new( _ingredient, { isLocked = isIngredientLocked } )
 
     	_ingredientDisplayObject.x = x
     	_ingredientDisplayObject.y = y
@@ -164,6 +175,11 @@ local function addIngredientsChooserToScene()
     	ingredientsChooser:insert( _ingredientDisplayObject )
 
     	function _ingredientDisplayObject:touch( event )
+
+            if self.isLocked == true then
+                return false
+            end
+
     		
     		if 'began' == event.phase then
 
@@ -220,9 +236,9 @@ local function addIngredientsChooserToScene()
     						
     							scene.currentAppliance:addIngredient( self.ingredient )
 
-    							if self.ingredient.name == 'honey' then
-    								scene.currentAppliance:empty()
-    							end
+                                if scene.emptyApplianceButton.isEnabled == false then
+                                    scene.emptyApplianceButton:setEnabled( true )
+                                end
 
     						else
 
@@ -259,28 +275,29 @@ local function addIngredientLabelToScene()
 	ingredientLabel.x = 218
 	ingredientLabel.y = 100
 	ingredientLabel.preferedSize = 20
+    sceneGroup:insert( ingredientLabel )
 
 	function ingredientLabel:changeInDraggedIngredient( event )
 		local oldLabel = event.oldLabel or ''
 		local newLabel = event.newLabel or ''
 
-		transition.cancel( ingredientLabel )
-		ingredientLabel.alpha = 0
-		ingredientLabel.text = newLabel
-		ingredientLabel.size = ingredientLabel.preferedSize
-		transition.to( ingredientLabel, {alpha = 1, time = 350 })
+		transition.cancel( self )
+		self.alpha = 0
+		self.text = newLabel
+		self.size = self.preferedSize
+		transition.to( self, {alpha = 1, time = 150 })
 
 
 		local oldLabelObject = display.newText( {
 		text = oldLabel,
-		fontSize = 20,
+		fontSize = self.preferedSize,
 		width = 200,
 		align = 'center',
 		})
-		ingredientLabel:setFillColor( 0 )
-		ingredientLabel.x = 218
-		ingredientLabel.y = 100
-		transition.to( oldLabelObject, { alpha = 0, time = 350, onComplete = function() oldLabelObject:removeSelf() end  })
+		oldLabelObject:setFillColor( 0 )
+		oldLabelObject.x = 218
+		oldLabelObject.y = 100
+		transition.to( oldLabelObject, { alpha = 0, time = 150, onComplete = function() oldLabelObject:removeSelf() end  })
 
 
 
@@ -294,21 +311,40 @@ function scene:create( event )
 
     local sceneGroup = self.view
 
-    local bleed = display.newRect(display.contentCenterX, display.contentCenterY, 1.25 * display.contentWidth, 1.25 * display.contentHeight)
-    bleed:setFillColor( 1 )
-    sceneGroup:insert( bleed )
 
-    local background = display.newRect( display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight )
-    background:setFillColor( 1 )
-    sceneGroup:insert( background )
+    local bleedBottom = display.newRect(display.contentCenterX, display.contentCenterY, 1.25 * display.contentWidth, 1.25 * display.contentHeight)
+    bleedBottom:setFillColor( .8,.8,1  )
+    --bleedBottom:setFillColor( 1 )
+    sceneGroup:insert( bleedBottom )
+
+    local bleedTop = display.newRect(display.contentCenterX, 0, 1.25 * display.contentWidth, 100)
+    --bleedTop:setFillColor( 1,.8,.8  )
+      bleedTop:setFillColor( 0 )
+    sceneGroup:insert( bleedTop )
 
 
-  	addAppliancesToScene()
+    local backgroundTop = display.newRect( 160, 25, 320, 50)
+    backgroundTop:setFillColor( 0 )
+    sceneGroup:insert( backgroundTop )
+
+    local backgroundBottom = display.newRect( 160, 265, 320, 430 )
+    backgroundBottom:setFillColor( 1 )
+    sceneGroup:insert( backgroundBottom )
+
+
+  	
 
     addIngredientsChooserToScene()
+    addAppliancesToScene()
     addIngredientLabelToScene()
 
 
+    local emptyApplianceButton = require( 'UI.EmptyApplianceButtonWidget' ).new()
+    self.emptyApplianceButton = emptyApplianceButton
+    emptyApplianceButton:setEnabled( false, 0 )
+    emptyApplianceButton.x = 270
+    emptyApplianceButton.y = 350
+    sceneGroup:insert( emptyApplianceButton )
 
     
     local ingredientList
@@ -316,24 +352,22 @@ function scene:create( event )
     ingredientList, ingredientListKeys = Ingredients.getList()
 
     self.customer = require( 'Customer' ).new( ingredientList )
-    for k,v in pairs(self.customer.preferences) do
-    	print(k,v)
-    end
+   
+
 
     local customerPanel = require('UI.CustomerPanel').new( self.customer )
-    customerPanel.x = display.contentCenterX
+    customerPanel.x = -200
     customerPanel.y = 25
+    timer.performWithDelay( 1000, function() transition.to( customerPanel, { x = display.contentCenterX, time = 1000, transition = easing.outElastic } ) end )
     sceneGroup:insert( customerPanel )
    
-    timer.performWithDelay( 1000, function() customerPanel:setPatience(0.44) end )
-    timer.performWithDelay( 2000, function() customerPanel:setRating(7) end)
-    timer.performWithDelay( 3000, function() customerPanel:setLogButtonEnabled( false ) end )
-        timer.performWithDelay( 4000, function() customerPanel:setLogButtonEnabled( true ) end )
-
-    local button = display.newRect( 0, 0, 200, 60 )
+    --timer.performWithDelay( 3000, function() customerPanel:setPatience(0.44) end )
+    --timer.performWithDelay( 4000, function() customerPanel:setRating(7) end)
+   
+    local button = display.newRect( 0, 0, 200, 40 )
     button:setFillColor( 0,1,0 )
     button.x = display.contentCenterX
-    button.y = display.contentHeight - 0.5 * button.contentHeight
+    button.y = display.contentHeight - 25
     sceneGroup:insert(button)
 
     function button:touch( event )
@@ -346,7 +380,10 @@ function scene:create( event )
     				
     				if scene.customer then
     					local rating = scene.customer:rateRecipe( recipe )
-    					print("DEBUG rating",rating)
+    					scene.customer:addToLog( recipe, rating, "" )
+
+                        customerPanel:setLogButtonEnabled( true )
+
     				end
     			end
 
@@ -363,7 +400,26 @@ function scene:create( event )
 
 end
 
+function scene:logButtonTapped( event )
+    Runtime:dispatchEvent( { name = 'soundEvent', key = 'Maximise_08' } )
 
+
+    local log
+    if scene.customer then
+        log = scene.customer.log
+    end
+
+
+    
+    composer.showOverlay( 'overlay_Log' , { isModal = true, time = 0, params = { log = log} })
+end
+function scene:emptyApplianceButtonTapped( event )
+    print("scene:emptyApplianceButtonTapped")
+    if self.currentAppliance then
+        self.currentAppliance:empty()
+    end
+    self.emptyApplianceButton:setEnabled( false )
+end
 
 function scene:show( event )
 
@@ -372,6 +428,13 @@ function scene:show( event )
 
     if ( phase == "will" ) then
     elseif ( phase == "did" ) then
+
+        Runtime:addEventListener( 'logButtonTapped', self )
+        Runtime:addEventListener( 'emptyApplianceButtonTapped', self )
+
+        composer.removeScene( 'overlay_Log' )
+
+
     end
 end
 function scene:hide( event )

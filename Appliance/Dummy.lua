@@ -1,8 +1,8 @@
 local Dummy = {}
 
 
-local width = 200
-local height = 200
+local width = 160
+local height = 160
 
 function Dummy.new()
 

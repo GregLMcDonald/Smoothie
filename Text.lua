@@ -7,7 +7,7 @@ local strings = {}
 
 strings[ 'lang_en' ] =
 {
-	bestScore = 'Best Score',
+	bestScore = 'Best Rating',
 	patience = 'Patience',
 }
 
