@@ -15,6 +15,7 @@ local Recipe = require 'Recipe'
 local IngredientDisplayObject = require 'IngredientDisplayObject'
 local DraggableIngredientDisplayObject = require 'DraggableIngredientDisplayObject'
 local Ingredients = require 'Ingredients'
+local CustomerPanel = require 'CustomerPanel'
 
 local Language = require 'Language'
 local preferredLanguage = Language.getPreference()
@@ -308,6 +309,8 @@ function scene:create( event )
     addIngredientsChooserToScene()
     addIngredientLabelToScene()
 
+
+
     
     local ingredientList
     local ingredientListKeys
@@ -317,6 +320,13 @@ function scene:create( event )
     for k,v in pairs(self.customer.preferences) do
     	print(k,v)
     end
+
+    local customerPanel = CustomerPanel.new( self.customer )
+    customerPanel.x = display.contentCenterX
+    customerPanel.y = 25
+    sceneGroup:insert( customerPanel )
+    timer.performWithDelay( 1000, function() customerPanel:setPatience(0.14) end )
+    timer.performWithDelay( 2000, function() customerPanel:setRating(3) end)
 
     local button = display.newRect( 0, 0, 200, 60 )
     button:setFillColor( 0,1,0 )

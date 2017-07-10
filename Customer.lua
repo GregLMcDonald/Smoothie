@@ -1,5 +1,38 @@
 -- Customer.lua
 
+-------------------------------------------------------------------------------
+--
+--  AVATAR
+--
+-------------------------------------------------------------------------------
+local avatarImageDirectory = 'image/customers/'
+local nBoys = 23
+local nGirls = 27
+
+local function getAvatarImageFilename()
+
+	local result
+
+	-- Randomly select boy or girl
+	local flip = math.random()
+	local gender
+	if flip < 0.5 then
+		gender = 'boy'
+	else
+		gender = 'girl'
+	end
+	local number 
+	if 'boy' == gender then
+		number = math.random( nBoys )
+	else
+		number = math.random( nGirls )
+	end
+	result = avatarImageDirectory..gender..'-'..tostring(number)..'.png'
+
+	return result
+end
+
+
 
 -------------------------------------------------------------------------------
 --
@@ -183,6 +216,8 @@ local Customer = {}
 function Customer.new( ingredients, options )
 
 	local result = {}
+
+	result.avatarImageFilename = getAvatarImageFilename()
 
 	local ingredients = ingredients or {}
 	local options = options or {}

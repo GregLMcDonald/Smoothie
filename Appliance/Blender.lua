@@ -3,20 +3,22 @@ local Blender = {}
 local blenderWidth = 200
 local blenderHeight = 200
 
+local imageDir = 'image/appliances/'
+
 function Blender.new()
 
-	local result = require( 'Appliance' ).new()
+	local result = require( 'Appliance.Appliance' ).new()
 	result.action = 'blended'
 	
-	local blenderImage = display.newImageRect( 'image/mixer.png', blenderWidth, blenderHeight )
+	local blenderImage = display.newImageRect( imageDir..'mixer.png', blenderWidth, blenderHeight )
     result:insert( blenderImage )
 
-    result.overImage = display.newImageRect( 'image/mixer_darker_container.png', blenderWidth, blenderHeight)
+    result.overImage = display.newImageRect( imageDir..'mixer_darker_container.png', blenderWidth, blenderHeight)
     result:insert( result.overImage )
     result.overImage.alpha = 0
 
     for i = 1, 5 do
-    	local fillingName = 'image/mixer_fill_max5_'..tostring(i)..'.png'
+    	local fillingName = imageDir..'mixer_fill_max5_'..tostring(i)..'.png'
     	local filling = display.newImageRect( fillingName, blenderWidth, blenderHeight )
     	filling.alpha = 0
     	result:insert( filling )
@@ -58,7 +60,7 @@ function Blender.new()
       
         	local ingredient = self.contents[ i ]
 
-    		local fillingName = 'image/mixer_fill_max5_'..tostring(i)..'.png'
+    		local fillingName = imageDir..'mixer_fill_max5_'..tostring(i)..'.png'
     		local filling = display.newImageRect( fillingName, blenderWidth, blenderHeight )
     		if filling then
     			filling:setFillColor( unpack( ingredient.colour ) )

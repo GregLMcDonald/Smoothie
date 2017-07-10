@@ -1,6 +1,4 @@
-local String = {}
-
-
+local Text = {}
 
 local defaultLang = require( 'Language' ).getPreference()
 
@@ -9,19 +7,19 @@ local strings = {}
 
 strings[ 'lang_en' ] =
 {
-	bestRating = 'Best Rating',
+	bestScore = 'Best Score',
 	patience = 'Patience',
 }
 
 strings[ 'lang_fr' ] =
 {
-	bestRating = 'Meilleure Note',
+	bestScore = 'Meilleure Note',
 	patience = 'Patience',
 }
 
 
 
-function String.forKey( key, lang )
+function Text.forKey( key, lang )
 	
 	local _lang = lang
 	if nil == _lang then
@@ -30,10 +28,10 @@ function String.forKey( key, lang )
 
 	local result
 
-	local _strings = strings.lang
-
-	if _strings then
-		result = _strings[ key ]
+	local myStrings = strings[ _lang ]
+	
+	if myStrings then
+		result = myStrings[ key ]
 	end
 
 	if nil == result then
@@ -45,4 +43,4 @@ function String.forKey( key, lang )
 end
 
 
-return String
+return Text

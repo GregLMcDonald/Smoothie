@@ -6,7 +6,7 @@ local height = 200
 
 function Dummy.new()
 
-	local result = require( 'Appliance' ).new()
+	local result = require( 'Appliance.Appliance' ).new()
 	result.action = 'dummy action'
 
 
