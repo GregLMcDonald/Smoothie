@@ -16,6 +16,12 @@ function Appliance.new()
     result.height = height
     result.action = ''
     result.isLocked = false
+    result.imageFilename = nil
+    
+    result.type = 'appliance'
+    result.actionPresent = ''
+    result.actionPast = ''
+
 
     local isOnShelf = false
 
@@ -90,7 +96,7 @@ function Appliance.new()
     		transition.cancel( obj )
     		transition.to( obj, {alpha = 0, time = 50 })
     	end
-    	result.contents = {}
+    	self.contents = {}
     end
 
     function result:isFull()
@@ -115,6 +121,24 @@ function Appliance.new()
     		
     	end
     	return true
+    end
+
+
+    function result:removeLastIngredient()
+        if #self.contents == 0 then
+            return true
+        else
+
+            local obj = self.fillingObjects[ #self.contents ]
+            if obj then
+                transition.cancel( obj )
+                transition.to( obj, { alpha = 0, time = 150 } )
+            end
+
+            self.contents[ #self.contents ] = nil
+
+        end
+        return true
     end
 
     function result:setOver( state )
@@ -152,7 +176,6 @@ function Appliance.new()
     end
 
     function result:remove( )
-        print('remove( )')
         for i = #self.fillingObjects, 1, -1 do
             table.remove( self.fillingObjects, i)
         end
@@ -160,7 +183,6 @@ function Appliance.new()
     end
 
     function result:processContents( onCompletion )
-        print('processContents',self.action)
 
         local _recipe = require( 'Recipe' ).new( self.contents, self.action )
     
@@ -169,6 +191,15 @@ function Appliance.new()
         end
 
 
+    end
+
+    function result:getLiteCopy()
+        local liteCopy = {}
+
+        liteCopy.action = self.action
+        liteCopy.imageFilename = self.imageFilename
+
+        return liteCopy
     end
 
 

@@ -8,7 +8,13 @@ local imageDir = 'image/appliances/'
 function Blender.new()
 
 	local result = require( 'Appliance.Appliance' ).new()
-	result.action = 'blended'
+	result.type = 'blender'
+
+    local myText = require 'Text'
+    result.actionPresent = myText.forKey( result.type..'ActionPresent' )
+    result.actionPast = myText.forKey( result.type..'ActionPast' )
+
+    result.imageFilename = imageDir..'mixer.png'
 	
 	local blenderImage = display.newImageRect( imageDir..'mixer.png', blenderWidth, blenderHeight )
     result:insert( blenderImage )

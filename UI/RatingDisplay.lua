@@ -2,7 +2,7 @@ local RatingDisplay = {}
 
 local Rating = require 'Rating'
 
-function RatingDisplay.new()
+function RatingDisplay.new( rating )
 
 
 	local result = display.newGroup()
@@ -13,7 +13,7 @@ function RatingDisplay.new()
 
 	result.width = ratingOutline.width
 	result.height = ratingOutline.height
-	result.rating = 10
+	result.rating = rating or 10
 
 	result.halfStars = {}
 
@@ -38,13 +38,14 @@ function RatingDisplay.new()
 	result:insert( ratingOutline )
 	--ratingOutline:removeSelf( )
 
-	function result:setRating( value )
+	function result:setRating( value, time  )
 
 
 
 		if value > Rating.maxValue then value = Rating.maxValue end
 		if value < Rating.minValue then value = Rating.minValue end
 
+		self.rating = value
 
 		local fractionOfMaximumRating = value / Rating.maxValue
 		local numberOfHalfStars = math.ceil( fractionOfMaximumRating * 10 )
@@ -63,6 +64,7 @@ function RatingDisplay.new()
 		end
 
 	end
+	result:setRating( result.rating, 0 )
 
 	function result:removeRatingDisplay()
 		for i=10,1,-1 do

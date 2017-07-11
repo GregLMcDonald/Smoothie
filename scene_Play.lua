@@ -18,15 +18,37 @@ local Ingredients = require 'Ingredients'
 
 local Language = require 'Language'
 local preferredLanguage = Language.getPreference()
-print('preferredLanguage',preferredLanguage)
 
-local function addAppliancesToScene()
+local function addBleed()
+    local sceneGroup = scene.view
+    local bleedBottom = display.newRect(display.contentCenterX, display.contentCenterY, 1.25 * display.contentWidth, 1.25 * display.contentHeight)
+    --bleedBottom:setFillColor( .8,.8,1  )
+    bleedBottom:setFillColor( 1 )
+    sceneGroup:insert( bleedBottom )
+
+    local bleedTop = display.newRect(display.contentCenterX, 0, 1.25 * display.contentWidth, 100)
+    --bleedTop:setFillColor( 1,.8,.8  )
+      bleedTop:setFillColor( 0 )
+    sceneGroup:insert( bleedTop )
+end
+local function addBackground()
+
+    local sceneGroup = scene.view
+    local backgroundTop = display.newRect( 160, 25, 320, 50)
+    backgroundTop:setFillColor( 0 )
+    sceneGroup:insert( backgroundTop )
+
+    local backgroundBottom = display.newRect( 160, 265, 320, 430 )
+    backgroundBottom:setFillColor( 1 )
+    sceneGroup:insert( backgroundBottom )
+end
+local function addAppliances()
 
 	local sceneGroup = scene.view
 
 	local appliances = {
-    	require( 'Appliance.Blender' ).new(),
     	require( 'Appliance.Dummy' ).new(),
+        require( 'Appliance.Blender' ).new(),
     	require( 'Appliance.Dummy' ).new(),
     	require( 'Appliance.Dummy' ).new(),
     	require( 'Appliance.Blender' ).new(),
@@ -34,7 +56,7 @@ local function addAppliancesToScene()
 
     local shelfY = display.contentHeight - 75
     local applianceWidthOnShelf = 0.25 * appliances[1].width
-    print('applianceWidthOnShelf',applianceWidthOnShelf)
+
     local shelfHorizontalPadding = (display.contentWidth - #appliances * applianceWidthOnShelf) / (#appliances + 1)
     local shelfX = shelfHorizontalPadding + 0.5 * applianceWidthOnShelf 
     for i = 1, #appliances do
@@ -76,6 +98,10 @@ local function addAppliancesToScene()
 
     			scene.currentAppliance = appliance
     			appliance:setOnShelf( false )
+
+                if scene.actionButton then                    
+                    scene.actionButton:changeActionLabel( appliance.actionPresent )
+                end
     			
     		end
     	end
@@ -90,7 +116,7 @@ local function addAppliancesToScene()
     scene.currentAppliance = appliances[ 1 ]
     scene.currentAppliance:setOnShelf( false, { animate = false } )
 end
-local function addIngredientsChooserToScene()
+local function addIngredientsChooser()
 	local sceneGroup = scene.view
 
 	local width = 320
@@ -240,6 +266,10 @@ local function addIngredientsChooserToScene()
                                     scene.emptyApplianceButton:setEnabled( true )
                                 end
 
+                                if scene.undoButton.isEnabled == false then
+                                    scene.undoButton:setEnabled( true )
+                                end
+
     						else
 
     							self:handleUnused()
@@ -262,7 +292,7 @@ local function addIngredientsChooserToScene()
     	_ingredientDisplayObject:addEventListener( 'touch', _ingredientDisplayObject )
     end
 end
-local function addIngredientLabelToScene()
+local function addIngredientLabel()
 	local sceneGroup = scene.view
 
 	local ingredientLabel = display.newText( {
@@ -304,154 +334,179 @@ local function addIngredientLabelToScene()
 	end
 	Runtime:addEventListener( 'changeInDraggedIngredient', ingredientLabel )
 end
-
-
-
-function scene:create( event )
-
-    local sceneGroup = self.view
-
-
-    local bleedBottom = display.newRect(display.contentCenterX, display.contentCenterY, 1.25 * display.contentWidth, 1.25 * display.contentHeight)
-    --bleedBottom:setFillColor( .8,.8,1  )
-    bleedBottom:setFillColor( 1 )
-    sceneGroup:insert( bleedBottom )
-
-    local bleedTop = display.newRect(display.contentCenterX, 0, 1.25 * display.contentWidth, 100)
-    --bleedTop:setFillColor( 1,.8,.8  )
-      bleedTop:setFillColor( 0 )
-    sceneGroup:insert( bleedTop )
-
-
-    local backgroundTop = display.newRect( 160, 25, 320, 50)
-    backgroundTop:setFillColor( 0 )
-    sceneGroup:insert( backgroundTop )
-
-    local backgroundBottom = display.newRect( 160, 265, 320, 430 )
-    backgroundBottom:setFillColor( 1 )
-    sceneGroup:insert( backgroundBottom )
-
-
-  	
-
-    addIngredientsChooserToScene()
-    addAppliancesToScene()
-   -- addIngredientLabelToScene()
-
-
-    local emptyApplianceButton = require( 'UI.EmptyApplianceButtonWidget' ).new()
-    self.emptyApplianceButton = emptyApplianceButton
-    emptyApplianceButton:setEnabled( false, 0 )
-    emptyApplianceButton.x = 270
-    emptyApplianceButton.y = 350
-    sceneGroup:insert( emptyApplianceButton )
-
-    
-    local ingredientList
-    local ingredientListKeys
-    ingredientList, ingredientListKeys = Ingredients.getList()
-
-    self.customer = require( 'Customer' ).new( ingredientList )
-   
-
-
-    local customerPanel = require('UI.CustomerPanel').new( self.customer )
-    customerPanel.x = -200
-    customerPanel.y = 25
-    customerPanel.alpha = 0
-    self.customerPanel = customerPanel
-    sceneGroup:insert( customerPanel )
-   
-    --timer.performWithDelay( 3000, function() customerPanel:setPatience(0.44) end )
-    --timer.performWithDelay( 4000, function() customerPanel:setRating(7) end)
-   
-    local button = display.newRect( 0, 0, 200, 40 )
-    button:setFillColor( 0,1,0 )
-    button.x = display.contentCenterX
-    button.y = display.contentHeight - 25
-    sceneGroup:insert(button)
-
-    function button:touch( event )
-    	if 'ended' == event.phase then
-    		if scene.currentAppliance then 
-
-    			local onProcessingCompleted = function()
-    				
-    				local recipe = Recipe.new( scene.currentAppliance.contents, scene.currentAppliance.action )
-    				
-    				if scene.customer then
-    					local rating = scene.customer:rateRecipe( recipe )
-    					scene.customer:addToLog( recipe, rating, "" )
-
-                        customerPanel:setLogButtonEnabled( true )
-
-    				end
-    			end
-
-    			scene.currentAppliance:processContents( onProcessingCompleted )
-    			
-
-    		end
-    	end
-    end
-    button:addEventListener( 'touch', button )
-
-
-    local homeButton = display.newImageRect( 'image/ui/arrows.png', 40, 40 )
-    homeButton.x = 25
-    homeButton.y = 455
-    sceneGroup:insert( homeButton )
-    function homeButton:tap()
-        Runtime:dispatchEvent( { name = 'soundEvent', key = 'Alert_03'})
-        composer.gotoScene( 'scene_Title', { effect = 'crossFade', time = 300 } )
-    end
-    homeButton:addEventListener( 'tap', homeButton )
-
-
-
+local function addMuteButton()
     local muteButton = require( 'UI.MuteButton' ).new()
-    muteButton.x = 295
-    muteButton.y = 455
-    sceneGroup:insert(muteButton)
-    self.muteButton = muteButton
 
+    muteButton.x = 64
+    muteButton.y = 455
+    scene.view:insert(muteButton)
+    scene.muteButton = muteButton
     if 0 == audio.getVolume() then
         muteButton:setMuted( true, 0)
     else
         muteButton:setMuted( false, 0 )
     end
-
     function muteButton:tap()
         muteButton:setMuted( not muteButton.isMuted )
     end
     muteButton:addEventListener( 'tap', muteButton )
-
-
-    Runtime:addEventListener( "key", self )
-
 end
+local function addEmptyApplianceButton()
 
-function scene:logButtonTapped( event )
-    Runtime:dispatchEvent( { name = 'soundEvent', key = 'Maximise_08' } )
-
-
-    local log
-    if scene.customer then
-        log = scene.customer.log
-    end
-
-
+    local emptyApplianceButton = require( 'UI.EmptyApplianceButtonWidget' ).new()
+    scene.emptyApplianceButton = emptyApplianceButton
+    emptyApplianceButton:setEnabled( false, 0 )
+    emptyApplianceButton.x = 270
+    emptyApplianceButton.y = 350
+    scene.view:insert( emptyApplianceButton )
+end
+local function addUndoButton()
+    local undoButton = require( 'UI.UndoButtonWidget' ).new()
+    scene.undoButton = undoButton
+    undoButton:setEnabled( false, 0 )
+    undoButton.x = 270
+    undoButton.y = 300
+    scene.view:insert(undoButton)
+end
+local function addCustomerAndCustomerPanel()
     
-    composer.showOverlay( 'overlay_Log' , { isModal = true, time = 0, params = { log = log} })
+    local ingredientList
+    local ingredientListKeys
+    ingredientList, ingredientListKeys = Ingredients.getList()
+
+    scene.customer = require( 'Customer' ).new( ingredientList )
+
+    local customerPanel = require('UI.CustomerPanel').new( scene.customer )
+    customerPanel.x = -200
+    customerPanel.y = 25
+    customerPanel.alpha = 0
+    scene.customerPanel = customerPanel
+    scene.view:insert( customerPanel )
 end
-function scene:emptyApplianceButtonTapped( event )
-    print("scene:emptyApplianceButtonTapped")
-    if self.currentAppliance then
-        self.currentAppliance:empty()
+local function addHomeButton()
+    local homeButton = display.newImageRect( 'image/ui/arrows.png', 40, 40 )
+    homeButton.x = 22
+    homeButton.y = 455
+    scene.view:insert( homeButton )
+    function homeButton:tap()
+        Runtime:dispatchEvent( { name = 'soundEvent', key = 'Alert_03'})
+        composer.gotoScene( 'scene_Title', { effect = 'crossFade', time = 300 } )
     end
-    self.emptyApplianceButton:setEnabled( false )
+    homeButton:addEventListener( 'tap', homeButton )
 end
 
+local function addActionButton()
+
+    local button = display.newGroup( )
+
+    local buttonShape = display.newRoundedRect( 0, 0, 200, 40, 5)
+    buttonShape:setFillColor( 37/255, 185/255, 154/255 )
+    button:insert( buttonShape )
+    
+    local function getButtonLabelObject( text )
+
+        local buttonLabel = display.newText({
+            text = string.upper( text ),
+            fontSize = 30,
+            font = 'HAMBH___.ttf',
+            })
+        buttonLabel:setFillColor( 1 )
+        
+        return buttonLabel
+
+    end
+
+    local labelText = 'process!'
+    if scene.currentAppliance and scene.currentAppliance.actionPresent then
+        labelText = scene.currentAppliance.actionPresent..'!'
+    end
+
+
+    local buttonLabel = getButtonLabelObject( labelText )
+    button.buttonLabel = buttonLabel
+    button:insert( buttonLabel )
+
+
+    button.x = 210
+    button.y = display.contentHeight - 25
+    scene.actionButton = button
+    scene.view:insert(button)
+
+    function button:touch( event )
+        if 'ended' == event.phase then
+            if scene.currentAppliance then 
+
+                local onProcessingCompleted = function()
+
+                    local contentsCopy = {}
+                    for i=1, #scene.currentAppliance.contents do
+                        local ingredient = scene.currentAppliance.contents[ i ]
+                        local ingredientCopy = Ingredients.copyIngredient( ingredient )
+                        table.insert( contentsCopy, ingredientCopy )
+                    end
+
+
+                    -- scene.currentAppliance:empty()
+                    
+                    local recipe = Recipe.new( contentsCopy, scene.currentAppliance:getLiteCopy() )
+                    
+                    if scene.customer then
+                        local rating = scene.customer:rateRecipe( recipe )
+                        scene.customer:addToLog( recipe, rating, "" )
+
+                        if scene.customerPanel then
+                            scene.customerPanel:setLogButtonEnabled( true )
+                        end
+
+                    end
+                end
+
+                scene.currentAppliance:processContents( onProcessingCompleted )
+                
+
+            end
+        end
+    end
+    button:addEventListener( 'touch', button )
+
+    function button:changeActionLabel( action )
+        
+        local newText = string.upper( action..'!')
+        if newText ~= self.buttonLabel.text then
+
+            local temp = getButtonLabelObject( self.buttonLabel.text )
+            self:insert( temp )
+            transition.to( temp, { alpha = 0, time = 100, onComplete = function() temp:removeSelf() end })
+
+            transition.cancel( self )
+            self.buttonLabel.alpha = 0
+            self.buttonLabel.text = newText
+            transition.to( self.buttonLabel, { alpha = 1, time = 100 })
+
+        end
+    end
+end
+
+
+function scene:create( event )
+
+    local sceneGroup = self.view
+    
+    addBleed()
+    addBackground()
+    addIngredientsChooser()
+    addAppliances()
+    -- addIngredientLabel()
+
+    addEmptyApplianceButton()
+    addUndoButton()
+    addHomeButton()
+    addMuteButton()
+    addCustomerAndCustomerPanel()
+    addActionButton()
+   
+    Runtime:addEventListener( "key", self )
+end
 function scene:show( event )
 
     local sceneGroup = self.view
@@ -462,6 +517,7 @@ function scene:show( event )
 
         Runtime:addEventListener( 'logButtonTapped', self )
         Runtime:addEventListener( 'emptyApplianceButtonTapped', self )
+        Runtime:addEventListener( 'undoButtonTapped', self )
 
         local customerPanel = self.customerPanel
         if customerPanel then
@@ -498,7 +554,46 @@ function scene:destroy( event )
     local sceneGroup = self.view
 end
 
+scene:addEventListener( "create", scene )
+scene:addEventListener( "show", scene )
+scene:addEventListener( "hide", scene )
+scene:addEventListener( "destroy", scene )
 
+
+function scene:logButtonTapped( event )
+
+    Runtime:dispatchEvent( { name = 'soundEvent', key = 'Maximise_08' } )
+
+    local log
+    if scene.customer then
+        log = scene.customer.log
+    end
+    composer.showOverlay( 'overlay_Log' , { isModal = true, time = 0, params = { log = log} })
+end
+function scene:emptyApplianceButtonTapped( event )
+    if self.currentAppliance then
+        self.currentAppliance:empty()
+    end
+    if self.undoButton then
+        self.undoButton:setEnabled( false )
+    end
+    if self.emptyApplianceButton then
+        self.emptyApplianceButton:setEnabled( false )
+    end
+end
+function scene:undoButtonTapped( event )
+    if self.currentAppliance then
+        self.currentAppliance:removeLastIngredient()
+    end
+    if #self.currentAppliance.contents == 0 then
+        if self.undoButton then 
+            self.undoButton:setEnabled( false )
+        end
+        if self.emptyApplianceButton then
+            self.emptyApplianceButton:setEnabled( false )
+        end
+    end
+end
 function scene:key(event)
     local handledTouch = false
     if ( event.keyName == "back" ) then
@@ -515,11 +610,5 @@ function scene:key(event)
     end
     return handledTouch
 end
-
-scene:addEventListener( "create", scene )
-scene:addEventListener( "show", scene )
-scene:addEventListener( "hide", scene )
-scene:addEventListener( "destroy", scene )
-
 
 return scene

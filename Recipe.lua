@@ -1,10 +1,10 @@
 local Recipe = {}
 
-function Recipe.new( ingredients, action )
+function Recipe.new( ingredients, applianceLite )
 	local result = {}
 
 	result.ingredients = ingredients
-	result.action = action
+	result.appliance = applianceLite
 
 
 	function result:hasDealBreakers( dealBreakerProperties )

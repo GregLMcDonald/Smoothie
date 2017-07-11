@@ -4,7 +4,7 @@ local Language = {}
 function Language.getPreference()
 
 	local lang = system.getPreference( 'locale', 'language' )
-	print('lang',lang)
+
 	if lang then
 	
 		if lang == 'English' or lang == 'en' then

@@ -5,10 +5,10 @@ function MuteButton.new()
 	local result = display.newGroup( )
 
 
-	local onImage = display.newImageRect( 'image/ui/muteOn2.png', 40, 40)
+	local onImage = display.newImageRect( 'image/ui/muteOnGreen.png', 40, 40)
 	result:insert( onImage )
 	result.onImage = onImage
-	local offImage = display.newImageRect( 'image/ui/muteOff2.png', 40, 40)
+	local offImage = display.newImageRect( 'image/ui/muteOffGreen.png', 40, 40)
 	result:insert( offImage )
 	result.offImage = offImage
 

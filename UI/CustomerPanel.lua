@@ -34,7 +34,8 @@ function CustomerPanel.new( customer )
 	local _label = string.upper( text.forKey( 'patience' ) )
 	local patienceLabel = display.newText({ 
 		text = _label,
-		fontSize = 12,
+		fontSize = 14,
+		font = 'HAMBH___.ttf',
 	})
 	patienceLabel:setFillColor( 1 )
 	patienceLabel.anchorX = 0
@@ -54,7 +55,8 @@ function CustomerPanel.new( customer )
 	_label = string.upper( text.forKey( 'bestScore' ) )
 	local ratingLabel = display.newText({
 		text = _label,
-		fontSize = 12,
+		fontSize = 14,
+		font = 'HAMBH___.ttf',
 		})
 	ratingLabel:setFillColor( 1 )
 	ratingLabel.anchorX = 0

@@ -1,11 +1,11 @@
-local EmptyApplianceButtonWidget = {}
+local UndoButtonWidget = {}
 
-function EmptyApplianceButtonWidget.new()
+function UndoButtonWidget.new()
 	
 	local result = display.newGroup()
 
-	local grayImage = display.newImageRect( 'image/ui/garbageGray.png', 40, 40 )
-	local colourImage = display.newImageRect( 'image/ui/garbage.png', 40, 40 )
+	local grayImage = display.newImageRect( 'image/ui/undoGrayWhiteFill.jpg', 40, 40 )
+	local colourImage = display.newImageRect( 'image/ui/undoWhiteFill.jpg', 40, 40 )
 
 
 	result:insert( grayImage )
@@ -20,8 +20,6 @@ function EmptyApplianceButtonWidget.new()
 		transition.cancel( colourImage )
 		transition.cancel( self )
 		if state == true then
-			transition.to( self, { xScale = 0.7, yScale = 0.7, time = 0.1 * time } )
-			transition.to( self, { xScale = 1, yScale = 1, delay = 0.1 * time, time = 5 * time, transition = easing.outElastic })
 			transition.fadeIn( colourImage, { time = time } )
 		else
 			transition.fadeOut( colourImage, { time = time } )
@@ -37,7 +35,7 @@ function EmptyApplianceButtonWidget.new()
 		else
 
 			Runtime:dispatchEvent( { name = 'soundEvent', key = 'Bleep_04' } )
-			Runtime:dispatchEvent( { name = 'emptyApplianceButtonTapped' } )
+			Runtime:dispatchEvent( { name = 'undoButtonTapped' } )
 		end
 	end
 	result:addEventListener( 'tap', result )
@@ -46,4 +44,4 @@ function EmptyApplianceButtonWidget.new()
 
 end
 
-return EmptyApplianceButtonWidget
+return UndoButtonWidget

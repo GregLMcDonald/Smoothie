@@ -123,4 +123,12 @@ function Ingredients.getList()
 
 end
 
+function Ingredients.copyIngredient( ingredient )
+	local copy = {}
+	for k,v in pairs(ingredient) do
+		copy[ k ] = v
+	end
+	return copy
+end
+
 return Ingredients

@@ -7,7 +7,11 @@ local height = 160
 function Dummy.new()
 
 	local result = require( 'Appliance.Appliance' ).new()
-	result.action = 'dummy action'
+	result.type = 'dummy'
+
+	 local myText = require 'Text'
+    result.actionPresent = myText.forKey( result.type..'ActionPresent' )
+    result.actionPast = myText.forKey( result.type..'ActionPast' )
 
 
 	local rectangle = display.newRect( result, 0, 0, width, height )

@@ -9,12 +9,20 @@ strings[ 'lang_en' ] =
 {
 	bestScore = 'Best Rating',
 	patience = 'Patience',
+	blenderActionPresent = 'blend',
+	blenderActionPast = 'blended',
+	dummyActionPresent = 'dummify',
+	dummyActionPast = 'dummified',
 }
 
 strings[ 'lang_fr' ] =
 {
 	bestScore = 'Meilleure Note',
 	patience = 'Patience',
+	blenderActionPresent = 'mixer',
+	blenderActionPast = 'mixé',
+	dummyActionPresent = 'stupidifier',
+	dummyActionPast = 'stupidifié',
 }
 
 

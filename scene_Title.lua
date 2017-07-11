@@ -19,8 +19,6 @@ function scene:create( event )
 	local rows = math.ceil( heightToCover / tileHeight )
 	local nTiles = columns * rows
 
-	print('columns',columns,'rows',rows)
-
 	local tiledRegionWidth = columns * tileWidth
 	local tiledRegionHeight = rows * tileHeight
 
@@ -49,7 +47,6 @@ function scene:create( event )
 	local aspect = 646 / 414
 
 	local title = display.newImageRect( 'image/title/title.png', 300, 300/aspect )
-	print(title.width, title.height)
 	sceneGroup:insert( title )
 	title.x = 160
 	title.y = 50 + 0.5 * title.height
