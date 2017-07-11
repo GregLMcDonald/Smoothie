@@ -336,7 +336,7 @@ function scene:create( event )
 
     addIngredientsChooserToScene()
     addAppliancesToScene()
-    addIngredientLabelToScene()
+   -- addIngredientLabelToScene()
 
 
     local emptyApplianceButton = require( 'UI.EmptyApplianceButtonWidget' ).new()
