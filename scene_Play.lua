@@ -313,8 +313,8 @@ function scene:create( event )
 
 
     local bleedBottom = display.newRect(display.contentCenterX, display.contentCenterY, 1.25 * display.contentWidth, 1.25 * display.contentHeight)
-    bleedBottom:setFillColor( .8,.8,1  )
-    --bleedBottom:setFillColor( 1 )
+    --bleedBottom:setFillColor( .8,.8,1  )
+    bleedBottom:setFillColor( 1 )
     sceneGroup:insert( bleedBottom )
 
     local bleedTop = display.newRect(display.contentCenterX, 0, 1.25 * display.contentWidth, 100)
@@ -358,7 +358,8 @@ function scene:create( event )
     local customerPanel = require('UI.CustomerPanel').new( self.customer )
     customerPanel.x = -200
     customerPanel.y = 25
-    timer.performWithDelay( 1000, function() transition.to( customerPanel, { x = display.contentCenterX, time = 1000, transition = easing.outElastic } ) end )
+    customerPanel.alpha = 0
+    self.customerPanel = customerPanel
     sceneGroup:insert( customerPanel )
    
     --timer.performWithDelay( 3000, function() customerPanel:setPatience(0.44) end )
@@ -395,8 +396,38 @@ function scene:create( event )
     end
     button:addEventListener( 'touch', button )
 
-   
 
+    local homeButton = display.newImageRect( 'image/ui/arrows.png', 40, 40 )
+    homeButton.x = 25
+    homeButton.y = 455
+    sceneGroup:insert( homeButton )
+    function homeButton:tap()
+        Runtime:dispatchEvent( { name = 'soundEvent', key = 'Alert_03'})
+        composer.gotoScene( 'scene_Title', { effect = 'crossFade', time = 300 } )
+    end
+    homeButton:addEventListener( 'tap', homeButton )
+
+
+
+    local muteButton = require( 'UI.MuteButton' ).new()
+    muteButton.x = 295
+    muteButton.y = 455
+    sceneGroup:insert(muteButton)
+    self.muteButton = muteButton
+
+    if 0 == audio.getVolume() then
+        muteButton:setMuted( true, 0)
+    else
+        muteButton:setMuted( false, 0 )
+    end
+
+    function muteButton:tap()
+        muteButton:setMuted( not muteButton.isMuted )
+    end
+    muteButton:addEventListener( 'tap', muteButton )
+
+
+    Runtime:addEventListener( "key", self )
 
 end
 
@@ -432,6 +463,22 @@ function scene:show( event )
         Runtime:addEventListener( 'logButtonTapped', self )
         Runtime:addEventListener( 'emptyApplianceButtonTapped', self )
 
+        local customerPanel = self.customerPanel
+        if customerPanel then
+            timer.performWithDelay( 300, function()
+                transition.to( customerPanel, { alpha = 1, time = 50 })
+                transition.to( customerPanel, { x = display.contentCenterX, time = 1000, transition = easing.outElastic } ) 
+            end )
+        end
+
+        if self.muteButton then
+            if 0 == audio.getVolume() then
+                self.muteButton:setMuted( true, 0)   
+            else
+                self.muteButton:setMuted( false, 0 )
+            end
+        end
+
         composer.removeScene( 'overlay_Log' )
 
 
@@ -451,6 +498,23 @@ function scene:destroy( event )
     local sceneGroup = self.view
 end
 
+
+function scene:key(event)
+    local handledTouch = false
+    if ( event.keyName == "back" ) then
+       local platformName = system.getInfo( "platformName" )
+       if ( platformName == "Android" ) or ( platformName == "WinPhone" ) then
+         
+            if event.phase == "up" then
+
+                    composer.gotoScene( 'scene_Title' )
+                    handledTouch = true
+
+            end
+        end
+    end
+    return handledTouch
+end
 
 scene:addEventListener( "create", scene )
 scene:addEventListener( "show", scene )

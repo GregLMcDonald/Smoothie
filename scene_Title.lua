@@ -55,14 +55,21 @@ function scene:create( event )
 	title.y = 50 + 0.5 * title.height
 
 
+	local lang = require( 'Language' ).getPreference()
+	local playButtonFilename = 'image/title/playButton_en.png'
+	if lang == 'lang_fr' then
+		playButtonFilename = 'image/title/playButton_fr.png'
+	end
+
 	local playButtonAspect = 501/301
-	local playButton = display.newImageRect( 'image/title/playButton_fr.png', 120, 120/playButtonAspect )
+	local playButton = display.newImageRect( playButtonFilename, 120, 120/playButtonAspect )
 	playButton.x =  160
 	playButton.y = title.y + 0.5 * title.height + 25 + 0.5 * playButton.height
 	sceneGroup:insert(playButton)
 
 	function playButton:tap()
-		composer.gotoScene( 'scene_Play', { effect = 'fade' } )
+		Runtime:dispatchEvent( { name = 'soundEvent', key = 'Alert_03'} )
+		composer.gotoScene( 'scene_Play', { effect = 'crossFade', time = 300 } )
 	end
 	playButton:addEventListener( 'tap', playButton )
 
@@ -72,6 +79,20 @@ function scene:create( event )
 	--studioGoojaji.y = 430
 	--sceneGroup:insert(studioGoojaji)
 
+	local isCurrentlyMuted = false
+	if 0 == audio.getVolume() then isCurrentlyMuted = true end
+
+	local muteButton = require( 'UI.MuteButton' ).new()
+	muteButton.x = 25
+	muteButton.y = 455
+	sceneGroup:insert(muteButton)
+	self.muteButton = muteButton
+	muteButton:setMuted( isCurrentlyMuted, 0  )
+
+	function muteButton:tap()
+		muteButton:setMuted( not muteButton.isMuted )
+	end
+	muteButton:addEventListener( 'tap', muteButton )
 end
 
 
@@ -82,6 +103,13 @@ function scene:show( event )
 
     if ( phase == "will" ) then
     elseif ( phase == "did" ) then
+    	if self.muteButton then
+            if 0 == audio.getVolume() then
+                self.muteButton:setMuted( true, 0)   
+            else
+                self.muteButton:setMuted( false, 0 )
+            end
+        end
 
     end
 end
@@ -92,6 +120,7 @@ function scene:hide( event )
 
     if ( phase == "will" ) then
     elseif ( phase == "did" ) then
+    	
     end
 end
 function scene:destroy( event )
