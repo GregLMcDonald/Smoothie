@@ -3,7 +3,8 @@ local TextParameters = {}
 
 local pixelsPerPoint = display.pixelWidth / display.contentWidth
 local fontFactor = pixelsPerPoint / 2
-local optimalFontSize = 24 / fontFactor
+--local optimalFontSize = 20 / fontFactor
+local optimalFontSize = 20
 
 local test = display.newText( {
 text = 'abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnop',
@@ -12,7 +13,7 @@ fontSize = optimalFontSize,
 } )
 
 
-local maximumLineLength = math.min( test.contentWidth, 300 )
+local maximumLineLength = math.min( test.contentWidth, 280 )
 
 test:removeSelf( )
 test = nil

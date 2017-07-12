@@ -52,7 +52,8 @@ function CustomerPanel.new( customer )
 		patienceDisplay:setValue( value )
 	end
 
-	_label = string.upper( text.forKey( 'bestScore' ) )
+	--_label = string.upper( text.forKey( 'bestScore' ) )
+	_label = text.forKey( 'bestScore' )
 	local ratingLabel = display.newText({
 		text = _label,
 		fontSize = 14,
@@ -64,8 +65,8 @@ function CustomerPanel.new( customer )
 	ratingLabel.y = -2 - 0.5 * ratingLabel.contentHeight
 	result:insert( ratingLabel ) 
 
-
-	local ratingDisplay = require( 'UI.RatingDisplay' ).new()
+	result.bestRating = 0
+	local ratingDisplay = require( 'UI.RatingDisplay' ).new( 0 	)
 	local ratingScale = 100 / ratingDisplay.width
 	ratingDisplay.xScale = ratingScale
 	ratingDisplay.yScale = ratingScale
@@ -74,7 +75,10 @@ function CustomerPanel.new( customer )
 	result:insert( ratingDisplay )
 
 	function result:setRating( value )
-		ratingDisplay:setRating( value )
+		if value > self.bestRating then 
+			self.bestRating = value
+			ratingDisplay:setRating( value )
+		end
 	end
 
 	local logButton = require('UI.LogButtonWidget').new()

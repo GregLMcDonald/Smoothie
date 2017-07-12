@@ -2,7 +2,7 @@
 
 -----------------------------------------------------------------------------------------
 --
--- Title:  scene_Home.lua
+-- Title:  Play.lua
 --
 -- Author: Greg McDonald
 --
@@ -47,11 +47,11 @@ local function addAppliances()
 	local sceneGroup = scene.view
 
 	local appliances = {
-    	require( 'Appliance.Dummy' ).new(),
-        require( 'Appliance.Blender' ).new(),
-    	require( 'Appliance.Dummy' ).new(),
-    	require( 'Appliance.Dummy' ).new(),
-    	require( 'Appliance.Blender' ).new(),
+    	require( '_Appliance.Dummy' ).new(),
+        require( '_Appliance.Blender' ).new(),
+    	require( '_Appliance.Grinder' ).new(),
+    	require( '_Appliance.Press' ).new(),
+    	require( '_Appliance.Dummy' ).new(),
     }
 
     local shelfY = display.contentHeight - 75
@@ -134,16 +134,6 @@ local function addIngredientsChooser()
 
 	sceneGroup:insert( ingredientsChooser )
 
-	--[[
-    local chooserOutline = display.newRoundedRect( 0, 0, 118, 304, 5 )
-	chooserOutline:setStrokeColor( 0 )
-	chooserOutline.strokeWidth = 1
-	chooserOutline.fill = nil
-	chooserOutline.x = ingredientsChooser.x
-	chooserOutline.y = ingredientsChooser.y
-	sceneGroup:insert( chooserOutline )
-    ]]
-
 	function ingredientsChooser:getPositionInParentCoordinatesOfPoint(x,y)
 		local xInParent
 		local yInParent
@@ -183,14 +173,8 @@ local function addIngredientsChooser()
 
     	local y = yBase + ( (i-1) % ingredientsPerColumn ) * yStep
 
-        local isIngredientLocked = false
-        --if i > 5 then
-        --    isIngredientLocked = true
-        --end
-
-        if i % 2 == 0 then
-            isIngredientLocked = true
-        end
+        local isIngredientLocked = scene.preferences[ key ]
+   
     	local _ingredientDisplayObject = IngredientDisplayObject.new( _ingredient, { isLocked = isIngredientLocked } )
 
     	_ingredientDisplayObject.x = x
@@ -335,7 +319,7 @@ local function addIngredientLabel()
 	Runtime:addEventListener( 'changeInDraggedIngredient', ingredientLabel )
 end
 local function addMuteButton()
-    local muteButton = require( 'UI.MuteButton' ).new()
+    local muteButton = require( '_UI.MuteButton' ).new()
 
     muteButton.x = 64
     muteButton.y = 455
@@ -353,7 +337,7 @@ local function addMuteButton()
 end
 local function addEmptyApplianceButton()
 
-    local emptyApplianceButton = require( 'UI.EmptyApplianceButtonWidget' ).new()
+    local emptyApplianceButton = require( '_UI.EmptyApplianceButtonWidget' ).new()
     scene.emptyApplianceButton = emptyApplianceButton
     emptyApplianceButton:setEnabled( false, 0 )
     emptyApplianceButton.x = 270
@@ -361,7 +345,7 @@ local function addEmptyApplianceButton()
     scene.view:insert( emptyApplianceButton )
 end
 local function addUndoButton()
-    local undoButton = require( 'UI.UndoButtonWidget' ).new()
+    local undoButton = require( '_UI.UndoButtonWidget' ).new()
     scene.undoButton = undoButton
     undoButton:setEnabled( false, 0 )
     undoButton.x = 270
@@ -376,7 +360,7 @@ local function addCustomerAndCustomerPanel()
 
     scene.customer = require( 'Customer' ).new( ingredientList )
 
-    local customerPanel = require('UI.CustomerPanel').new( scene.customer )
+    local customerPanel = require('_UI.CustomerPanel').new( scene.customer )
     customerPanel.x = -200
     customerPanel.y = 25
     customerPanel.alpha = 0
@@ -384,13 +368,13 @@ local function addCustomerAndCustomerPanel()
     scene.view:insert( customerPanel )
 end
 local function addHomeButton()
-    local homeButton = display.newImageRect( 'image/ui/arrows.png', 40, 40 )
+    local homeButton = display.newImageRect( '__image/ui/arrows.png', 40, 40 )
     homeButton.x = 22
     homeButton.y = 455
     scene.view:insert( homeButton )
     function homeButton:tap()
         Runtime:dispatchEvent( { name = 'soundEvent', key = 'Alert_03'})
-        composer.gotoScene( 'scene_Title', { effect = 'crossFade', time = 300 } )
+        composer.gotoScene( '_Scene.Title', { effect = 'crossFade', time = 300 } )
     end
     homeButton:addEventListener( 'tap', homeButton )
 end
@@ -455,6 +439,7 @@ local function addActionButton()
                         scene.customer:addToLog( recipe, rating, "" )
 
                         if scene.customerPanel then
+                            scene.customerPanel:setRating( rating )
                             scene.customerPanel:setLogButtonEnabled( true )
                         end
 
@@ -490,6 +475,8 @@ end
 
 function scene:create( event )
 
+    self.preferences = require( 'Preferences' ).getCopy()
+
     local sceneGroup = self.view
     
     addBleed()
@@ -501,7 +488,7 @@ function scene:create( event )
     addEmptyApplianceButton()
     addUndoButton()
     addHomeButton()
-    addMuteButton()
+   -- addMuteButton()
     addCustomerAndCustomerPanel()
     addActionButton()
    
@@ -535,7 +522,7 @@ function scene:show( event )
             end
         end
 
-        composer.removeScene( 'overlay_Log' )
+        composer.removeScene( '_Scene.LogOverlay' )
 
 
     end
@@ -568,7 +555,7 @@ function scene:logButtonTapped( event )
     if scene.customer then
         log = scene.customer.log
     end
-    composer.showOverlay( 'overlay_Log' , { isModal = true, time = 0, params = { log = log} })
+    composer.showOverlay( '_Scene.LogOverlay' , { isModal = true, time = 0, params = { log = log} })
 end
 function scene:emptyApplianceButtonTapped( event )
     if self.currentAppliance then
@@ -602,7 +589,7 @@ function scene:key(event)
          
             if event.phase == "up" then
 
-                    composer.gotoScene( 'scene_Title' )
+                    composer.gotoScene( '_Scene.Title' )
                     handledTouch = true
 
             end

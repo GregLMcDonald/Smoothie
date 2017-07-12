@@ -5,13 +5,14 @@ local scene = composer.newScene()
 
 local widget = require 'widget'
 local IngredientDisplayObject = require 'IngredientDisplayObject'
+local textParameters = require 'TextParameters'
 
 local bookColour = { 37/255, 185/255, 154/255 }
 
 scene.isShowingComment = false
-local function createCommentsDisplay( comments )
+local function createCommentsDisplay( comments, startX, startY )
 
-
+	local transitionTime = 150
 
 	local result = display.newGroup()
 
@@ -25,16 +26,19 @@ local function createCommentsDisplay( comments )
 
 
 
+
 	local textObject = display.newText( {
 		text = comments,
-		fontSize = 24,
+		fontSize = textParameters.fontSize() ,
 		font = 'Equity-Text-A-Regular.ttf',	
-		width = 280,
+		width = textParameters.maximumLineLength(),
 		} )
-	textObject:setFillColor( .15, .35, .15 )
+	textObject:setFillColor( 43/255, 31/255, 25/255 )
+	local commentWidth = textParameters.maximumLineLength() + 20
 
 	local closeButton = display.newImageRect( 'image/ui/close.png', 40, 40 )
-	closeButton.x = 135
+	closeButton.x = 0.5 * commentWidth - 20
+
 	result.closeButton = closeButton
 	closeButton:addEventListener( 'tap', result )
 	result:insert( closeButton )
@@ -46,7 +50,7 @@ local function createCommentsDisplay( comments )
 		
 		closeButton.y = - 0.5 * commentHeight - 24
 
-		local bg = display.newRoundedRect( 0,0,310, textObject.contentHeight + 20 ,10)
+		local bg = display.newRoundedRect( 0,0, commentWidth, textObject.contentHeight + 20 ,10)
 		bg:setFillColor( 1 )
 		bg:setStrokeColor( unpack( bookColour) )
 		bg.strokeWidth = 3
@@ -60,15 +64,16 @@ local function createCommentsDisplay( comments )
 
 		closeButton.y = - 240 + 22
 
-		local bg = display.newRoundedRect( 0,0,310,430,10)
+		local bg = display.newRoundedRect( 0,0,commentWidth,430,10)
 		bg:setFillColor( 1 )
 		bg:setStrokeColor( unpack( bookColour) )
 		bg.strokeWidth = 3
+		bg.y = 22.5
 		result:insert( bg )
 
 		local widget = require 'widget'
 		local scrollView = widget.newScrollView( {
-			width = 290,
+			width = commentWidth - 10 ,
 			height = 420,
 			horizontalScrollDisabled = true,
 			backgroundColor = {1,1,1},
@@ -76,9 +81,9 @@ local function createCommentsDisplay( comments )
 		--scrollView.x = -150
 		--scrollView.y = -230
 		scrollView.x = 0
-		scrollView.y = 0
+		scrollView.y = 22.5
 		
-		textObject.x = 145
+		textObject.x = 0.5 * (commentWidth - 10)
 		textObject.y = 0.5 * textObject.contentHeight
 		scrollView:insert( textObject )
 		result:insert( scrollView )
@@ -87,31 +92,38 @@ local function createCommentsDisplay( comments )
 
 	function result:tap()
 
+		Runtime:dispatchEvent( { name = 'soundEvent', key = 'Bleep_04'} )
+
 		local function onComplete()
 			scene.isShowingComment = false
 			result.closeButton:removeEventListener( 'tap', self )
 			result:removeSelf( )
 		end
 
-		transition.to( self.maskTable, { alpha = 0, time = 100 })
-		transition.to( self, { xScale = 0.01, yScale = 0.01, delay = 100, time = 250, onComplete = onComplete })
+		transition.to( self.maskTable, { alpha = 0, time = 50 })
+		local x = startX or self.x
+		local y = startY or self.y
+		transition.to( self, { x = x, y = y, xScale = 0.01, yScale = 0.01, delay = 50, time = transitionTime, onComplete = onComplete })
 
 
 	end
 	
 
+	result.x = startX
+	result.y = startY
+
 	result.xScale = 0.01
 	result.yScale = 0.01
 
 
-	transition.to( result, { xScale = 1, yScale = 1, time = 250 })
-	transition.to( result.maskTable, { alpha = 0.85, delay = 250, time = 100 } ) 
+	transition.to( result, { x = 160, y = 240, xScale = 1, yScale = 1, time = transitionTime })
+	
+	transition.to( result.maskTable, { alpha = 0.95, delay = transitionTime + 20, time = 50 } ) 
 
 
 	return result
 end
-
-local function createLogEntryDisplay( entry )
+local function createLogEntryDisplay( entry, rowNumber )
 	
 	local recipe = entry.recipe
 	local rating = entry.rating
@@ -120,7 +132,7 @@ local function createLogEntryDisplay( entry )
 	local result = display.newGroup()
 
 	local ingredientLineY = 7.5
-	local ratingLineY = -25
+	local ratingLineY = -23	
 
 	local ratingObj = require( 'UI.RatingDisplay').new( rating )
 
@@ -132,7 +144,6 @@ local function createLogEntryDisplay( entry )
 
 
 	ratingObj.x = 320 - ratingObjWidth - 2
-	print(ratingObj.width, ratingObj.x)
 
 	ratingObj.y = ratingLineY
 	result:insert( ratingObj )
@@ -167,16 +178,22 @@ local function createLogEntryDisplay( entry )
 	local comment = display.newImageRect( 'image/ui/chatGreenFilled.png', 40, 40)
 	comment.x = ratingObj.x + 0.5 * ratingObjWidth
 	comment.y = ingredientLineY
+	comment.rowNumber = rowNumber
 
 	function comment:tap()
+
+
 		if scene.isShowingComment == true then return true end
 
-		local _comm = 'That was pretty tasty, but I’d like it even more with carrots instead of apples.'
-		_comm = _comm.._comm.._comm.._comm.._comm.._comm.._comm.._comm.._comm.._comm
+		Runtime:dispatchEvent( { name = 'soundEvent', key = 'Maximise_08' } )
 
-		local commentObj = createCommentsDisplay( _comm )
-		commentObj.x = 160
-		commentObj.y = 240
+		local commentY = 32.5 + (self.rowNumber - 1) * 65 + 40 + scene.logTable:getContentPosition()
+		local commentX = self.x
+
+
+		local commentObj = createCommentsDisplay( comments, commentX, commentY )
+	
+
 		scene.view:insert(commentObj)
 		scene.isShowingComment = true
 
@@ -240,7 +257,7 @@ function scene:create( event )
 
 	local function onRowRender( event )
 		local id = event.row.id
-		local entry = createLogEntryDisplay( log[ tonumber(id) ] )
+		local entry = createLogEntryDisplay( log[ tonumber(id) ], id )
 		entry.y = 32.5
 		event.row:insert(entry)
 	end
@@ -255,6 +272,8 @@ function scene:create( event )
 	logPage:insert( logTable )
 	logTable.x = 0
 	logTable.y = 20
+
+	self.logTable = logTable
 
 	for i = 1,#log do
 		logTable:insertRow( {

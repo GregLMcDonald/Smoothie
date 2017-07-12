@@ -26,7 +26,7 @@ function scene:create( event )
 	local startY = 240 - 0.5 * tiledRegionHeight
 
 	for i = 1, nTiles do
-		local tile = display.newImageRect( 'image/title/foodAtomsLighter.jpg', tileWidth, tileHeight )
+		local tile = display.newImageRect( '__image/title/foodAtomsLighter.jpg', tileWidth, tileHeight )
 		tile.alpha = 0.5
 		tile.anchorX = 0
 		tile.anchorY = 1
@@ -46,16 +46,16 @@ function scene:create( event )
 
 	local aspect = 646 / 414
 
-	local title = display.newImageRect( 'image/title/title.png', 300, 300/aspect )
+	local title = display.newImageRect( '__image/title/title.png', 300, 300/aspect )
 	sceneGroup:insert( title )
 	title.x = 160
 	title.y = 50 + 0.5 * title.height
 
 
 	local lang = require( 'Language' ).getPreference()
-	local playButtonFilename = 'image/title/playButton_en.png'
+	local playButtonFilename = '__image/title/playButton_en.png'
 	if lang == 'lang_fr' then
-		playButtonFilename = 'image/title/playButton_fr.png'
+		playButtonFilename = '__image/title/playButton_fr.png'
 	end
 
 	local playButtonAspect = 501/301
@@ -66,12 +66,12 @@ function scene:create( event )
 
 	function playButton:tap()
 		Runtime:dispatchEvent( { name = 'soundEvent', key = 'Alert_03'} )
-		composer.gotoScene( 'scene_Play', { effect = 'crossFade', time = 300 } )
+		composer.gotoScene( '_Scene.Play', { effect = 'crossFade', time = 300 } )
 	end
 	playButton:addEventListener( 'tap', playButton )
 
 	--local goojajiAspect = 374/51
-	--local studioGoojaji = display.newImageRect( 'image/title/goojaji.png', 150 , 250/goojajiAspect )
+	--local studioGoojaji = display.newImageRect( '__image/title/goojaji.png', 150 , 250/goojajiAspect )
 	--studioGoojaji.x = 160
 	--studioGoojaji.y = 430
 	--sceneGroup:insert(studioGoojaji)
@@ -79,7 +79,7 @@ function scene:create( event )
 	local isCurrentlyMuted = false
 	if 0 == audio.getVolume() then isCurrentlyMuted = true end
 
-	local muteButton = require( 'UI.MuteButton' ).new()
+	local muteButton = require( '_UI.MuteButton' ).new()
 	muteButton.x = 25
 	muteButton.y = 455
 	sceneGroup:insert(muteButton)
@@ -90,6 +90,42 @@ function scene:create( event )
 		muteButton:setMuted( not muteButton.isMuted )
 	end
 	muteButton:addEventListener( 'tap', muteButton )
+
+
+	local infoButton = display.newImageRect( '__image/ui/info.png', 40, 40 )
+	infoButton.x = 295
+	infoButton.y = 455
+	sceneGroup:insert( infoButton )
+	function infoButton:tap()
+		Runtime:dispatchEvent( { name = 'soundEvent', key = 'Bleep_04' })
+		composer.gotoScene( '_Scene.InfoView', { effect = 'crossFade', time = 250, params = { infoTextKey = 'credits'} } )
+	end
+	infoButton:addEventListener( 'tap', infoButton )
+
+
+	local parentsButton = display.newGroup( )
+	local parentsLabel = display.newText( {
+		text = require( 'Text' ).forKey( 'parents' ),
+		font = 'HAMBH___.ttf',
+		fontSize = 30,
+		})
+	parentsLabel:setFillColor( 49/255, 242/255, 201/255  )
+	
+	local parentsBG = display.newRoundedRect( 0,0, parentsLabel.contentWidth + 20, 40, 5 )
+	parentsBG:setFillColor( 37/255, 185/255, 154/255 )
+	parentsButton:insert( parentsBG )
+	parentsButton:insert( parentsLabel )
+	parentsButton.x = infoButton.x - 25 - 0.5 * parentsBG.contentWidth
+	parentsButton.y = infoButton.y
+	sceneGroup:insert( parentsButton )
+	function parentsButton:tap()
+		Runtime:dispatchEvent( { name = 'soundEvent', key = 'Bleep_04' })
+		composer.gotoScene( '_Scene.InfoView', { effect = 'crossFade', time = 250, params = { infoTextKey = 'parentsGuide' } } )
+	end
+	parentsButton:addEventListener( 'tap', parentsButton )
+
+
+
 end
 
 
@@ -100,6 +136,9 @@ function scene:show( event )
 
     if ( phase == "will" ) then
     elseif ( phase == "did" ) then
+
+    	composer.removeScene( '_Scene.InfoView' )
+
     	if self.muteButton then
             if 0 == audio.getVolume() then
                 self.muteButton:setMuted( true, 0)   
@@ -107,6 +146,9 @@ function scene:show( event )
                 self.muteButton:setMuted( false, 0 )
             end
         end
+
+        local sound = require 'Sound'
+        timer.performWithDelay( 100, function() sound.playBackgroundMusic() end )
 
     end
 end

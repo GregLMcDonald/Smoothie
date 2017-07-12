@@ -41,6 +41,7 @@ function IngredientDisplayObject.new( ingredient, options )
 			local letter = display.newText( {
 				text = firstLetterOfName,
 				fontSize = 10,
+				font = 'HAMBH___.ttf',
 			} )
 			letter:setFillColor( 1 )
 			displayObject:insert( letter )
