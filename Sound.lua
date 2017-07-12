@@ -2,11 +2,12 @@ local Sound = {}
 
 function Sound.init()
 
+    audio.reserveChannels( 1 )
 
     local soundFilenameSuffix = '.ogg'
 
 
-    local directoryPrefix = "audio/"
+    local directoryPrefix = '__audio/'
     local androidSuffix = ".ogg"
     local iosSuffix = ".m4a"
 
@@ -40,6 +41,7 @@ function Sound.init()
         'process_Electrical',
         'process_Foam',
         'process_Squirt',
+        'Curious',
     }
 
     Sound.handles = {}
@@ -61,12 +63,25 @@ function Sound.init()
 
 end
 
-function Sound:getDuration( key )
+function Sound.getDuration( key )
     local duration = 0
-    if self.handles[ key ] then
-        duration = audio.getDuration( self.handles[ key ] )
+    if Sound.handles[ key ] then
+        duration = audio.getDuration( Sound.handles[ key ] )
     end
     return duration
+end
+
+function Sound.playBackgroundMusic()
+    if Sound.isPlayingBackgroundMusic ~= true then 
+        if Sound.handles[ 'Curious' ] then
+            audio.play( Sound.handles[ 'Curious' ], { channel = 1, onComplete = function() Sound.playBackgroundMusic() end } )
+        end
+        Sound.isPlayingBackgroundMusic = true
+    end
+end
+function Sound.stopBackgroundMusic()
+    audio.stop( 1 )
+    Sound.isPlayingBackgroundMusic = false
 end
 
 return Sound

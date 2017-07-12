@@ -50,7 +50,7 @@ function Ingredients.getList()
 			end
 
 			ingredient.colour = { colour.red, colour.green, colour.blue }
-			ingredient.imageFilename = 'image/ingredients/'..key..'.png'
+			ingredient.imageFilename = '__image/ingredients/'..key..'.png'
 
 
 

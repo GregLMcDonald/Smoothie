@@ -5,7 +5,7 @@
 --  AVATAR
 --
 -------------------------------------------------------------------------------
-local avatarImageDirectory = 'image/customers/'
+local avatarImageDirectory = '__image/customers/'
 local nBoys = 23
 local nGirls = 27
 
