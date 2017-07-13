@@ -4,8 +4,8 @@ local composer = require( "composer" )
 local scene = composer.newScene()
 
 local widget = require 'widget'
-local IngredientDisplayObject = require 'IngredientDisplayObject'
-local textParameters = require 'TextParameters'
+local IngredientDisplayObject = require '_Culinary.IngredientDisplayObject'
+local textParameters = require '_Assets.TextParameters'
 
 local bookColour = { 37/255, 185/255, 154/255 }
 

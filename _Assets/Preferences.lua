@@ -2,7 +2,7 @@ local Preferences = {}
 
 
 
-local ingredients, ingredientKeys = require( 'Ingredients' ).getList()
+local ingredients, ingredientKeys = require( '_Culinary.Ingredients' ).getList()
 
 local applianceKeys = {
 	'appliance1',

@@ -1,6 +1,6 @@
 local RatingDisplay = {}
 
-local Rating = require 'Rating'
+local Rating = require '_Customer.Rating'
 
 function RatingDisplay.new( rating )
 

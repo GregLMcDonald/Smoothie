@@ -10,7 +10,7 @@ function Blender.new()
 	local result = require( '_Appliance.Appliance' ).new()
 	result.type = 'blender'
 
-    local myText = require 'Text'
+    local myText = require '_Assets.Text'
     result.actionPresent = myText.forKey( result.type..'ActionPresent' )
     result.actionPast = myText.forKey( result.type..'ActionPast' )
 
@@ -36,7 +36,7 @@ function Blender.new()
     function result:processContents( completionHandler )
 
         local soundKey = 'process_Blend'
-        local sound = require( 'Sound' )
+        local sound = require( '_Assets.Sound' )
         local duration = sound.getDuration( soundKey )
         Runtime:dispatchEvent( { name = 'soundEvent', key = soundKey } )
 

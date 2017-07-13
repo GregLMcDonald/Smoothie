@@ -74,11 +74,20 @@ end
 function Sound.playBackgroundMusic()
     if Sound.isPlayingBackgroundMusic ~= true then 
         if Sound.handles[ 'Curious' ] then
-            audio.play( Sound.handles[ 'Curious' ], { channel = 1, onComplete = function() Sound.playBackgroundMusic() end } )
+            audio.play( Sound.handles[ 'Curious' ], { channel = 1, onComplete = function() Sound.isPlayingBackgroundMusic = false; Sound.playBackgroundMusic() end } )
         end
         Sound.isPlayingBackgroundMusic = true
     end
+    audio.setVolume( 1, { channel = 1})
+
 end
+
+function Sound.duckBackgroundMusic()
+    if Sound.isPlayingBackgroundMusic then
+        audio.setVolume( .3 , {channel = 1} )
+    end
+end
+
 function Sound.stopBackgroundMusic()
     audio.stop( 1 )
     Sound.isPlayingBackgroundMusic = false

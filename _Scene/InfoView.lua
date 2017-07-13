@@ -62,9 +62,9 @@ function scene:create( event )
 	end
 
 
-	local infoText = require( 'Text' ).forKey( infoTextKey )
+	local infoText = require( '_Assets.Text' ).forKey( infoTextKey )
 
-	local textParameters = require 'TextParameters'
+	local textParameters = require '_Assets.TextParameters'
 	local infoTextObject = display.newText({
 		text = infoText,
 		fontSize = textParameters.fontSize() ,

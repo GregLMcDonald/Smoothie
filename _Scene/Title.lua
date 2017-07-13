@@ -52,7 +52,7 @@ function scene:create( event )
 	title.y = 50 + 0.5 * title.height
 
 
-	local lang = require( 'Language' ).getPreference()
+	local lang = require( '_Assets.Language' ).getPreference()
 	local playButtonFilename = '__image/title/playButton_en.png'
 	if lang == 'lang_fr' then
 		playButtonFilename = '__image/title/playButton_fr.png'
@@ -105,7 +105,7 @@ function scene:create( event )
 
 	local parentsButton = display.newGroup( )
 	local parentsLabel = display.newText( {
-		text = require( 'Text' ).forKey( 'parents' ),
+		text = require( '_Assets.Text' ).forKey( 'parents' ),
 		font = 'HAMBH___.ttf',
 		fontSize = 30,
 		})
@@ -147,7 +147,7 @@ function scene:show( event )
             end
         end
 
-        local sound = require 'Sound'
+        local sound = require '_Assets.Sound'
         timer.performWithDelay( 100, function() sound.playBackgroundMusic() end )
 
     end

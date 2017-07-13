@@ -311,7 +311,7 @@ function Customer.new( ingredients, options )
 			print("LEAST FAV ",fav[1].name, coeff)
 		end
 
-		local Rating = require 'Rating'
+		local Rating = require '_Customer.Rating'
 		
 		local myRating = Rating.minValue
 

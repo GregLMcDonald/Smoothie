@@ -1,6 +1,6 @@
 local DraggableIngredientDisplayObject = {}
 
-local IngredientDisplayObject = require 'IngredientDisplayObject'
+local IngredientDisplayObject = require '_Culinary.IngredientDisplayObject'
 
 
 function DraggableIngredientDisplayObject.new( ingredient, x, y, touchX, touchY )

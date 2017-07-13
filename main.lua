@@ -3,12 +3,12 @@
 
 display.setStatusBar( display.HiddenStatusBar )
 
-local sound = require( 'Sound' )
+local sound = require( '_Assets.Sound' )
 sound:init()
 
 
 
-local preferences = require 'Preferences'
+local preferences = require '_Assets.Preferences'
 preferences.load()
 
 

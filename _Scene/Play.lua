@@ -11,12 +11,12 @@
 local composer = require( "composer" )
 local scene = composer.newScene()
 
-local Recipe = require 'Recipe'
-local IngredientDisplayObject = require 'IngredientDisplayObject'
-local DraggableIngredientDisplayObject = require 'DraggableIngredientDisplayObject'
-local Ingredients = require 'Ingredients'
+local Recipe = require '_Assets.Recipe'
+local IngredientDisplayObject = require '_Culinary.IngredientDisplayObject'
+local DraggableIngredientDisplayObject = require '_Culinary.DraggableIngredientDisplayObject'
+local Ingredients = require '_Culinary.Ingredients'
 
-local Language = require 'Language'
+local Language = require '_Assets.Language'
 local preferredLanguage = Language.getPreference()
 
 local function addBleed()
@@ -358,7 +358,7 @@ local function addCustomerAndCustomerPanel()
     local ingredientListKeys
     ingredientList, ingredientListKeys = Ingredients.getList()
 
-    scene.customer = require( 'Customer' ).new( ingredientList )
+    scene.customer = require( '_Customer.Customer' ).new( ingredientList )
 
     local customerPanel = require('_UI.CustomerPanel').new( scene.customer )
     customerPanel.x = -200
@@ -475,7 +475,7 @@ end
 
 function scene:create( event )
 
-    self.preferences = require( 'Preferences' ).getCopy()
+    self.preferences = require( '_Assets.Preferences' ).getCopy()
 
     local sceneGroup = self.view
     
@@ -533,6 +533,8 @@ function scene:hide( event )
     local phase = event.phase
 
     if ( phase == "will" ) then
+        local sound = require '_Assets.Sound'
+        sound.duckBackgroundMusic()
     elseif ( phase == "did" ) then
     end
 end

@@ -1,7 +1,7 @@
 local CustomerPanel = {}
 
-local Language = require 'Language'
-local text = require 'Text'
+local Language = require '_Assets.Language'
+local text = require '_Assets.Text'
 
 
 

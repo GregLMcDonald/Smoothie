@@ -9,7 +9,7 @@ function Dummy.new()
 	local result = require( '_Appliance.Appliance' ).new()
 	result.type = 'dummy'
 
-	 local myText = require 'Text'
+	 local myText = require '_Assets.Text'
     result.actionPresent = myText.forKey( result.type..'ActionPresent' )
     result.actionPast = myText.forKey( result.type..'ActionPast' )
 

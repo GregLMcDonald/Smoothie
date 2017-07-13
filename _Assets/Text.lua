@@ -1,6 +1,6 @@
 local Text = {}
 
-local defaultLang = require( 'Language' ).getPreference()
+local defaultLang = require( '_Assets.Language' ).getPreference()
 
 
 local englishCredits = 'Snack Lab\n(c)2017 Greg McDonald\n\nConcept:\nThomas and Greg McDonald\n\nProgramming:\nGreg McDonald\n\nWriting:\nThomas and Greg McDonald\n\nGraphics:\nIcons designed by Madebyoliver and Freepix from Flaticon. Additional graphics by Greg and Thomas McDonald.\n\nAudio:\nSounds by Frank Serafine, SFX Bible, Airborne Sound and Blastwave FX from Soundsnap. Other sounds from the UI SFX collection by Stuart Duffield (available on Corona Marketplace).'

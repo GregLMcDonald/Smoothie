@@ -184,7 +184,7 @@ function Appliance.new()
 
     function result:processContents( onCompletion )
 
-        local _recipe = require( 'Recipe' ).new( self.contents, self.action )
+        local _recipe = require( '_Culinary.Recipe' ).new( self.contents, self.action )
     
         if onCompletion and 'function' == type(onCompletion) then
             onCompletion()
