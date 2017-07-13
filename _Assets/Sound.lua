@@ -71,6 +71,7 @@ function Sound.getDuration( key )
     return duration
 end
 
+local backgroundMusicVolume = 1
 function Sound.playBackgroundMusic()
     if Sound.isPlayingBackgroundMusic ~= true then 
         if Sound.handles[ 'Curious' ] then
@@ -78,14 +79,15 @@ function Sound.playBackgroundMusic()
         end
         Sound.isPlayingBackgroundMusic = true
     end
-    audio.setVolume( 1, { channel = 1})
-
 end
 
-function Sound.duckBackgroundMusic()
-    if Sound.isPlayingBackgroundMusic then
-        audio.setVolume( .3 , {channel = 1} )
+function Sound.duckBackgroundMusic( state )
+    if true == state then
+        backgroundMusicVolume = .1
+    else
+        backgroundMusicVolume = 1
     end
+    audio.setVolume( backgroundMusicVolume , {channel = 1} )
 end
 
 function Sound.stopBackgroundMusic()

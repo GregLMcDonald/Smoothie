@@ -11,7 +11,7 @@
 local composer = require( "composer" )
 local scene = composer.newScene()
 
-local Recipe = require '_Assets.Recipe'
+local Recipe = require '_Culinary.Recipe'
 local IngredientDisplayObject = require '_Culinary.IngredientDisplayObject'
 local DraggableIngredientDisplayObject = require '_Culinary.DraggableIngredientDisplayObject'
 local Ingredients = require '_Culinary.Ingredients'

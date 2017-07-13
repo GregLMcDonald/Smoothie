@@ -8,9 +8,10 @@ function Ingredients.getList()
 	local ingredientListKeys = {}
 
 
-	local ingredientDatabaseFilename = 'Culinary/ingredients.db'
+	local ingredientDatabaseFilename = '_Culinary/ingredients.db'
 	local sqlite3 = require( "sqlite3" )
-	local path = system.pathForFile( ingredientDatabaseFilename )
+	local path = system.pathForFile( ingredientDatabaseFilename, system.ResourceDirectory )
+	print(path)
 	local db = sqlite3.open( path ) 
 
 
