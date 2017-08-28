@@ -180,6 +180,9 @@ local function createLogEntryDisplay( entry, rowNumber )
 	comment.y = ingredientLineY
 	comment.rowNumber = rowNumber
 
+
+	--comments = 'There once was a man from Shawinigan\nWho though he would have to begin again,\nBut when he looked closely\nHe saw that he mostly just\nNeeded to factor things in again.'
+
 	function comment:tap()
 
 

@@ -143,9 +143,15 @@ function scene:create( event )
 			
 
 		else
-			timer.cancel( title.glint1Timer )
-			timer.cancel( title.glint2Timer )
-			timer.cancel( title.glint3Timer )
+			if self.glint1Timer then
+				timer.cancel( title.glint1Timer )
+			end
+			if self.glint2Timer then
+				timer.cancel( title.glint2Timer )
+			end
+			if self.glint3Timer then
+				timer.cancel( title.glint3Timer )
+			end
 		end
 
 	end
@@ -294,6 +300,7 @@ function scene:hide( event )
     if ( phase == "will" ) then
 
     	sound.duckBackgroundMusic( true )
+
 
     elseif ( phase == "did" ) then
 

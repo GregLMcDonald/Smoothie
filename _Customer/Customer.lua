@@ -298,17 +298,17 @@ function Customer.new( ingredients, options )
 	function result:rateRecipe( recipe )
 
 		for k,v in pairs(recipe.ingredients) do
-			print(k,v.name)
+			print(k,v.name, self.preferences[ v.name ])
 		end
 
 
-		local fav, coeff = getIngredientsAtExtremumOfPreferencesInRecipe( recipe, self.preferences, true )
-		if fav then
-			print("FAV ",fav[1].name,coeff)
+		local favs, favsCoeff = getIngredientsAtExtremumOfPreferencesInRecipe( recipe, self.preferences, true )
+		if favs then
+			print("FAV ",favs[1].name,favsCoeff)
 		end
-		fav,coeff = getIngredientsAtExtremumOfPreferencesInRecipe( recipe, self.preferences, false )
-		if fav then
-			print("LEAST FAV ",fav[1].name, coeff)
+		local leastFavs,leastFavsCoeff = getIngredientsAtExtremumOfPreferencesInRecipe( recipe, self.preferences, false )
+		if leastFavs then
+			print("LEAST FAV ",leastFavs[1].name, leastFavsCoeff)
 		end
 
 		local Rating = require '_Customer.Rating'
@@ -318,6 +318,7 @@ function Customer.new( ingredients, options )
 		if #recipe.ingredients > 0 and false == recipe:hasDealBreakers( self.dealBreakerProperties ) then
 		
 			local averagePreferrenceCoefficient = self:computeAveragePreferrenceCoefficientForRecipe( recipe )	
+			print('averagePreferrenceCoefficient',averagePreferrenceCoefficient)
 			myRating = 5 + averagePreferrenceCoefficient
 
 			if recipe:lacksVariety() then myRating = myRating - Rating.penalty.forLackingVariety end

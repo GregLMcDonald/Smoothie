@@ -19,6 +19,27 @@ local Ingredients = require '_Culinary.Ingredients'
 local Language = require '_Assets.Language'
 local preferredLanguage = Language.getPreference()
 
+
+local function reactToRecipe( recipe )
+
+    if scene.customer then
+
+        local rating = scene.customer:rateRecipe( recipe )
+        scene.customer:addToLog( recipe, rating, "" )
+
+        if scene.customerPanel then
+            scene.customerPanel:setRating( rating )
+            scene.customerPanel:setLogButtonEnabled( true )
+        end
+
+    end
+end
+
+
+
+-------------------------
+--  SETUP PROCEDURES
+-------------------------
 local function addBleed()
     local sceneGroup = scene.view
     local bleedBottom = display.newRect(display.contentCenterX, display.contentCenterY, 1.25 * display.contentWidth, 1.25 * display.contentHeight)
@@ -100,7 +121,7 @@ local function addAppliances()
     			appliance:setOnShelf( false )
 
                 if scene.actionButton then                    
-                    scene.actionButton:changeActionLabel( appliance.actionPresent )
+                    scene.actionButton:setActionLabel( appliance.actionPresent )
                 end
     			
     		end
@@ -378,101 +399,80 @@ local function addHomeButton()
     end
     homeButton:addEventListener( 'tap', homeButton )
 end
-
 local function addActionButton()
 
-    local button = display.newGroup( )
+    local actionButton = require( '_UI.ActionButtonWidget' ).new()
 
-    local buttonShape = display.newRoundedRect( 0, 0, 200, 40, 5)
-    buttonShape:setFillColor( 37/255, 185/255, 154/255 )
-    button:insert( buttonShape )
-    
-    local function getButtonLabelObject( text )
+    actionButton.x = 210
+    actionButton.y = display.contentHeight - 25
+    scene.actionButton = actionButton
+    scene.view:insert(actionButton)
 
-        local buttonLabel = display.newText({
-            text = string.upper( text ),
-            fontSize = 30,
-            font = 'HAMBH___.ttf',
-            })
-        buttonLabel:setFillColor( 1 )
-        
-        return buttonLabel
 
-    end
-
-    local labelText = 'process!'
     if scene.currentAppliance and scene.currentAppliance.actionPresent then
-        labelText = scene.currentAppliance.actionPresent..'!'
+        local newLabel = scene.currentAppliance.actionPresent.."!"
+        actionButton:setActionLabel( newLabel)
     end
 
-
-    local buttonLabel = getButtonLabelObject( labelText )
-    button.buttonLabel = buttonLabel
-    button:insert( buttonLabel )
+    actionButton:setEnabled( true )
 
 
-    button.x = 210
-    button.y = display.contentHeight - 25
-    scene.actionButton = button
-    scene.view:insert(button)
+    function actionButton:touch( event )
 
-    function button:touch( event )
+        if self.isEnabled == false then 
+            return true 
+        end
+
         if 'ended' == event.phase then
             if scene.currentAppliance then 
 
                 local onProcessingCompleted = function()
 
-                    local contentsCopy = {}
-                    for i=1, #scene.currentAppliance.contents do
-                        local ingredient = scene.currentAppliance.contents[ i ]
-                        local ingredientCopy = Ingredients.copyIngredient( ingredient )
-                        table.insert( contentsCopy, ingredientCopy )
-                    end
+                    if #scene.currentAppliance.contents > 0 then
 
-
-                    -- scene.currentAppliance:empty()
-                    
-                    local recipe = Recipe.new( contentsCopy, scene.currentAppliance:getLiteCopy() )
-                    
-                    if scene.customer then
-                        local rating = scene.customer:rateRecipe( recipe )
-                        scene.customer:addToLog( recipe, rating, "" )
-
-                        if scene.customerPanel then
-                            scene.customerPanel:setRating( rating )
-                            scene.customerPanel:setLogButtonEnabled( true )
+                        local contentsCopy = {}
+                        for i=1, #scene.currentAppliance.contents do
+                            local ingredient = scene.currentAppliance.contents[ i ]
+                            local ingredientCopy = Ingredients.copyIngredient( ingredient )
+                            table.insert( contentsCopy, ingredientCopy )
                         end
 
+
+                        scene.currentAppliance:empty()
+                        
+                        scene.emptyApplianceButton:setEnabled( false )
+                        scene.undoButton:setEnabled( false )
+
+                        local recipe = Recipe.new( contentsCopy, scene.currentAppliance:getLiteCopy() )
+
+                        reactToRecipe( recipe )
+
+                    else
+
+                        print("there was nothing to process")
+
                     end
+
+                    self:setEnabled( true )
+
                 end
 
+                self:setEnabled( false )
                 scene.currentAppliance:processContents( onProcessingCompleted )
                 
 
             end
         end
     end
-    button:addEventListener( 'touch', button )
+    actionButton:addEventListener( 'touch', actionButton )
 
-    function button:changeActionLabel( action )
-        
-        local newText = string.upper( action..'!')
-        if newText ~= self.buttonLabel.text then
 
-            local temp = getButtonLabelObject( self.buttonLabel.text )
-            self:insert( temp )
-            transition.to( temp, { alpha = 0, time = 100, onComplete = function() temp:removeSelf() end })
-
-            transition.cancel( self )
-            self.buttonLabel.alpha = 0
-            self.buttonLabel.text = newText
-            transition.to( self.buttonLabel, { alpha = 1, time = 100 })
-
-        end
-    end
 end
 
 
+-------------------------
+-- LISTENER FUNCTIONS
+-------------------------
 function scene:create( event )
 
     self.preferences = require( '_Assets.Preferences' ).getCopy()
@@ -543,12 +543,6 @@ function scene:destroy( event )
     local sceneGroup = self.view
 end
 
-scene:addEventListener( "create", scene )
-scene:addEventListener( "show", scene )
-scene:addEventListener( "hide", scene )
-scene:addEventListener( "destroy", scene )
-
-
 function scene:logButtonTapped( event )
 
     Runtime:dispatchEvent( { name = 'soundEvent', key = 'Maximise_08' } )
@@ -599,5 +593,10 @@ function scene:key(event)
     end
     return handledTouch
 end
+scene:addEventListener( "create", scene )
+scene:addEventListener( "show", scene )
+scene:addEventListener( "hide", scene )
+scene:addEventListener( "destroy", scene )
+
 
 return scene
