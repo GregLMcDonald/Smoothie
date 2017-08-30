@@ -11,7 +11,6 @@ function Ingredients.getList()
 	local ingredientDatabaseFilename = '_Culinary/ingredients.db'
 	local sqlite3 = require( "sqlite3" )
 	local path = system.pathForFile( ingredientDatabaseFilename, system.ResourceDirectory )
-	print(path)
 	local db = sqlite3.open( path ) 
 
 
@@ -67,6 +66,7 @@ function Ingredients.getList()
 				local strings = {}
 				strings.sampleForm = row.sampleForm or row.name
 				strings.iLikeForm = row.iLikeForm or row.name
+
 
 				ingredient[ 'lang_en' ] = strings
 
