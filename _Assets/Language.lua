@@ -1,5 +1,7 @@
 local Language = {}
 
+local currentLanguage = nil
+
 
 function Language.getPreference()
 
@@ -21,13 +23,19 @@ function Language.getPreference()
 	
 	end
 
-	return lang
-	--return 'lang_fr'
-
+	return 'lang_en'
+--	return lang
 
 end
 
+function Language.getCurrentLanguage()
 
+	if nil == currentLanguage then
+		currentLanguage = Language.getPreference()
+	end
+
+	return currentLanguage
+end
 
 
 return Language

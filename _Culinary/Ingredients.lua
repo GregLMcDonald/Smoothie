@@ -1,5 +1,7 @@
 local Ingredients = {}
 
+local Ingredient = require( '_Culinary.Ingredient' )
+
 
 function Ingredients.getList()
 
@@ -21,7 +23,7 @@ function Ingredients.getList()
 		local sql = "SELECT * FROM ingredients;"
 		for row in db:nrows( sql ) do
 
-			local ingredient = {}
+			local ingredient = Ingredient.new()
 
 			local key
 			local colour = {}
@@ -64,8 +66,21 @@ function Ingredients.getList()
 			if ingredient then
 
 				local strings = {}
-				strings.sampleForm = row.sampleForm or row.name
-				strings.iLikeForm = row.iLikeForm or row.name
+				strings.sampleForm = {}
+				strings.sampleForm.text = row.sampleForm or row.name
+				strings.sampleForm.plural = false
+				if row.samplePlural and 1 == row.samplePlural then
+					strings.sampleForm.plural = true
+				end
+				strings.sampleForm.gender = row.sampleGender or 'M'
+
+				strings.iLikeForm = {}
+				strings.iLikeForm.text = row.iLikeForm or row.name
+				strings.iLikeForm.plural = false
+				if row.iLikePlural and 1 == row.iLikePlural then
+					strings.iLikeForm.plural = true
+				end
+				strings.iLikeForm.gender = row.iLikeGender or 'M'
 
 
 				ingredient[ 'lang_en' ] = strings
@@ -80,8 +95,21 @@ function Ingredients.getList()
 			if ingredient then
 
 				local strings = {}
-				strings.sampleForm = row.sampleForm or row.name
-				strings.iLikeForm = row.iLikeForm or row.name
+				strings.sampleForm = {}
+				strings.sampleForm.text = row.sampleForm or row.name
+				strings.sampleForm.plural = false
+				if row.samplePlural and 1 == row.samplePlural then
+					strings.sampleForm.plural = true
+				end
+				strings.sampleForm.gender = row.sampleGender or 'M'
+
+				strings.iLikeForm = {}
+				strings.iLikeForm.text = row.iLikeForm or row.name
+				strings.iLikeForm.plural = false
+				if row.iLikePlural and 1 == row.iLikePlural then
+					strings.iLikeForm.plural = true
+				end
+				strings.iLikeForm.gender = row.iLikeGender or 'M'
 
 				ingredient[ 'lang_fr' ] = strings
 

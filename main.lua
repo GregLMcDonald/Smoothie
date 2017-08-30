@@ -20,8 +20,8 @@ composer.loadScene( '_Scene.Play' )
 composer.loadScene( '_Scene.InfoView', { infoTextKey = 'credits' } )
 
 
---composer.gotoScene( '_Scene.Title' )
-composer.gotoScene( '_Scene.Play' )
+composer.gotoScene( '_Scene.Title' )
+--composer.gotoScene( '_Scene.Play' )
 
 
 

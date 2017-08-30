@@ -217,8 +217,11 @@ local function addIngredientsChooser()
     			Runtime:dispatchEvent( { name = 'soundEvent', key = 'select' } )
 
    
-   				Runtime:dispatchEvent( { name = 'changeInDraggedIngredient', oldLabel = '', newLabel = self.ingredient[ preferredLanguage ].sampleForm } )
+   				Runtime:dispatchEvent( { name = 'changeInDraggedIngredient', oldLabel = '', newLabel = self.ingredient:sampleLabel() } )
     			
+                --print('picked up '..self.ingredient:sampleLabel() )
+                print('picked up '..self.ingredient:sampleLabel( true ).text, self.ingredient:sampleLabel(true).gender, self.ingredient:sampleLabel(true).plural )
+
     			local x
     			local y
     			x,y = ingredientsChooser:getPositionInParentCoordinatesOfPoint(self.x,self.y)
@@ -255,7 +258,7 @@ local function addIngredientsChooser()
 
     				elseif 'ended' == event.phase then
 
-    					Runtime:dispatchEvent( { name = 'changeInDraggedIngredient', oldLabel = self.ingredient[ preferredLanguage ].sampleForm, newLabel = '' } )
+    					Runtime:dispatchEvent( { name = 'changeInDraggedIngredient', oldLabel = self.ingredient:sampleLabel(), newLabel = '' } )
 
     					self:handleTouchEnded( event )
 
