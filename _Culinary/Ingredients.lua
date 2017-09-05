@@ -3,7 +3,7 @@ local Ingredients = {}
 local Ingredient = require( '_Culinary.Ingredient' )
 
 
-function Ingredients.getList()
+function Ingredients.getList( isEarned, isUnlocked )
 
 
 	local ingredientList = {}
@@ -145,6 +145,20 @@ function Ingredients.getList()
 	end
 	for i=1, #ingredientListUnrankedKeys do
 		table.insert( ingredientListKeys, ingredientListUnrankedKeys[ i ] )
+	end
+
+	--Cull ingredients that are locked or unearned
+	if isEarned or isUnlocked then
+		local goodKeys = {}
+		for i=1,#ingredientListKeys do
+			local key = ingredientListKeys[ i ]
+			if false == isEarned[ key ] or false == isUnlocked[ key ] then
+				ingredientList[ key ] = nil
+			else
+				goodKeys[ #goodKeys + 1 ] = key
+			end
+		end
+		ingredientListKeys = goodKeys
 	end
 
 

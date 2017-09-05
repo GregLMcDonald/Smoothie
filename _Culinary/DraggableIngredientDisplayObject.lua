@@ -10,7 +10,7 @@ function DraggableIngredientDisplayObject.new( ingredient, x, y, touchX, touchY 
 	-- touchX, touchY: position of touch in screen coords for computing offset
 
 	assert( ingredient, "ingredient cannot be nil in DraggableIngredientDisplayObject.new")
-	local result = IngredientDisplayObject.new( ingredient )
+	local result = IngredientDisplayObject.new( ingredient, { isEarned = true } )
 
 
 	result.x = x

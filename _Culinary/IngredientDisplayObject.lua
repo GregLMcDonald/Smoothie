@@ -5,7 +5,7 @@ function IngredientDisplayObject.new( ingredient, options )
 	assert( ingredient , "ingregient cannot be nil in IngredientDisplayObject.new" )
 
 	local options = options or {}
-	local isLocked = options.isLocked or false
+	local isEarned = options.isEarned or false
 
 	local displayObject = display.newGroup( )
 
@@ -49,9 +49,9 @@ function IngredientDisplayObject.new( ingredient, options )
 
 	end
 
-	function displayObject:setLocked( state )
-		displayObject.isLocked = state
-		if true == state then 
+	function displayObject:setEarned( state )
+		displayObject.isEarned = state
+		if false == state then 
 			if displayObject.image then
 				displayObject.image.fill.effect = "filter.grayscale"
 			end
@@ -65,7 +65,7 @@ function IngredientDisplayObject.new( ingredient, options )
 		end
 	end
 
-	displayObject:setLocked( isLocked )
+	displayObject:setEarned( isEarned )
 	
 
 	return displayObject

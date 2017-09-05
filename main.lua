@@ -8,9 +8,8 @@ sound:init()
 
 
 
-local preferences = require '_Assets.Preferences'
-preferences.load()
-
+local Availability = require '_Assets.Availability'
+Availability.load()
 
 
 
@@ -28,7 +27,7 @@ composer.gotoScene( '_Scene.Title' )
 local function systemEvent( event )
 	print(event.type)
 	if event.type == 'applicationExit' then
-		preferences.save()
+		Availability.save()
 	end
 end
 Runtime:addEventListener( 'system', systemEvent )

@@ -215,6 +215,8 @@ local Customer = {}
 
 function Customer.new( ingredients, options )
 
+	
+
 	local result = {}
 
 	result.log = {}
@@ -267,6 +269,14 @@ function Customer.new( ingredients, options )
 	end
 	result:assignPreferences( ingredients )
 
+	local nbIngredients = 0
+	for k,v in pairs(ingredients) do
+		nbIngredients = nbIngredients + 1
+	end
+	print("Customer.new nb ingredients = ", nbIngredients)
+	for k,v in pairs(result.preferences) do
+		print(k,v)
+	end
 
 	function result:computeAveragePreferrenceCoefficientForRecipe( recipe )
 		local averagePreferrenceCoefficient = 0

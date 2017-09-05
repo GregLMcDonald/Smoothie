@@ -25,7 +25,8 @@ local function reactToRecipe( recipe )
     if scene.customer then
 
         local rating = scene.customer:rateRecipe( recipe )
-        scene.customer:addToLog( recipe, rating, "" )
+        local comments = scene.customer:commentOnRecipe( recipe )
+        scene.customer:addToLog( recipe, rating, comments )
 
         if scene.customerPanel then
             scene.customerPanel:setRating( rating )
@@ -194,9 +195,9 @@ local function addIngredientsChooser()
 
     	local y = yBase + ( (i-1) % ingredientsPerColumn ) * yStep
 
-        local isIngredientLocked = scene.preferences[ key ]
+        local isIngredientEarned = scene.earnedAvailability[ key ]
    
-    	local _ingredientDisplayObject = IngredientDisplayObject.new( _ingredient, { isLocked = isIngredientLocked } )
+    	local _ingredientDisplayObject = IngredientDisplayObject.new( _ingredient, { isEarned = isIngredientEarned } )
 
     	_ingredientDisplayObject.x = x
     	_ingredientDisplayObject.y = y
@@ -207,7 +208,7 @@ local function addIngredientsChooser()
 
     	function _ingredientDisplayObject:touch( event )
 
-            if self.isLocked == true then
+            if self.isEarned == false then
                 return false
             end
 
@@ -220,7 +221,7 @@ local function addIngredientsChooser()
    				Runtime:dispatchEvent( { name = 'changeInDraggedIngredient', oldLabel = '', newLabel = self.ingredient:sampleLabel() } )
     			
                 --print('picked up '..self.ingredient:sampleLabel() )
-                print('picked up '..self.ingredient:sampleLabel( true ).text, self.ingredient:sampleLabel(true).gender, self.ingredient:sampleLabel(true).plural )
+                --print('picked up '..self.ingredient:sampleLabel( true ).text, self.ingredient:sampleLabel(true).gender, self.ingredient:sampleLabel(true).plural )
 
     			local x
     			local y
@@ -380,7 +381,8 @@ local function addCustomerAndCustomerPanel()
     
     local ingredientList
     local ingredientListKeys
-    ingredientList, ingredientListKeys = Ingredients.getList()
+    ingredientList, ingredientListKeys = Ingredients.getList( scene.earnedAvailability, scene.unlockedAvailability )
+    print('In addCustomerAndCustomerPanel #ingredientListKeys',#ingredientListKeys)
 
     scene.customer = require( '_Customer.Customer' ).new( ingredientList )
 
@@ -468,8 +470,6 @@ local function addActionButton()
         end
     end
     actionButton:addEventListener( 'touch', actionButton )
-
-
 end
 
 
@@ -478,7 +478,10 @@ end
 -------------------------
 function scene:create( event )
 
-    self.preferences = require( '_Assets.Preferences' ).getCopy()
+
+    local Availability = require '_Assets.Availability'
+    self.earnedAvailability = Availability.getEarnedAvailabilityCopy()
+    self.unlockedAvailability = Availability.getUnlockedAvailabilityCopy()
 
     local sceneGroup = self.view
     

@@ -152,7 +152,7 @@ local function createLogEntryDisplay( entry, rowNumber )
 
 	local lastIngredientX = 0
 	for i=1,#recipe.ingredients do
-		local obj = IngredientDisplayObject.new( recipe.ingredients[ i ] )
+		local obj = IngredientDisplayObject.new( recipe.ingredients[ i ], { isEarned = true } )
 
 
 		obj.xScale = 0.8
@@ -181,7 +181,7 @@ local function createLogEntryDisplay( entry, rowNumber )
 	comment.rowNumber = rowNumber
 
 
-	--comments = 'There once was a man from Shawinigan\nWho though he would have to begin again,\nBut when he looked closely\nHe saw that he mostly just\nNeeded to factor things in again.'
+	--comments = 'There once was a man from Shawinigan\nWho thought he would have to begin again,\nBut when he looked closely\nHe saw that he mostly just\nNeeded to factor things in again.'
 
 	function comment:tap()
 

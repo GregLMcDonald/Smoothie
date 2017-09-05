@@ -23,8 +23,9 @@ function Language.getPreference()
 	
 	end
 
-	return 'lang_en'
---	return lang
+	--return 'lang_en'
+	return 'lang_fr'
+	--return lang
 
 end
 

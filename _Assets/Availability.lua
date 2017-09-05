@@ -29,6 +29,13 @@ local function setEarnedAndLockedDefaultValues()
 			isUnlocked[ ingredientKeys[ i ] ] = false
 		end
 	end
+
+	for i=1, #applianceKeys do
+		local key = applianceKeys[ i ]
+		isEarned[ key ] = true
+		isUnlocked[ key ] = true
+	end
+
 end
 setEarnedAndLockedDefaultValues()
 
@@ -103,7 +110,7 @@ local function openDatabaseForTable( tableName )
 		
 			sql = [=[ 
 				CREATE TABLE `]=]..tableName..[=[` (
-					`ingredientKey`	TEXT NOT NULL,
+					`key`	TEXT NOT NULL,
 					`isUnlocked` INTEGER NOT NULL DEFAULT 0,
 					`isEarned`	INTEGER NOT NULL DEFAULT 0
 				);
@@ -148,14 +155,14 @@ function Availability.load( playerID )
 			if 0 == row.isEarned then
 				isEarnedBoolean = false
 			end
-			isEarned[ row.ingredientKey ] = isEarnedBoolean
+			isEarned[ row.key ] = isEarnedBoolean
 
 
 			local isUnlockedBoolean = true
 			if 0 == row.isUnlocked then
 				isUnlockedBoolean = false
 			end
-			isUnlocked[ row.ingredientKey ] = isUnlockedBoolean
+			isUnlocked[ row.key ] = isUnlockedBoolean
 
 		end
 
@@ -241,12 +248,28 @@ function Availability.save( playerID )
 			if false == isUnlocked[ key ] then
 				isUnlockedNumber = 0
 			end
-			sql = "INSERT INTO "..tableName.." (`ingredientKey`,`isEarned`,`isUnlocked` ) VALUES ('"..key.."',"..isEarnedNumber..","..isUnlockedNumber..");"
+			sql = "INSERT INTO "..tableName.." (`key`,`isEarned`,`isUnlocked` ) VALUES ('"..key.."',"..isEarnedNumber..","..isUnlockedNumber..");"
 			local dbResult = availabilityDB:exec(sql)
 			if dbResult ~= sqlite3.OK then
 				print(dbResult, availabilityDB:errmsg() )
 			end
-		end		
+		end	
+		for i=1,#applianceKeys do
+			local key = applianceKeys[i]
+			local isEarnedNumber = 1
+			if false == isEarned[ key ] then
+				isEarnedNumber = 0
+			end
+			local isUnlockedNumber = 1
+			if false == isUnlocked[ key ] then
+				isUnlockedNumber = 0
+			end
+			sql = "INSERT INTO "..tableName.." (`key`,`isEarned`,`isUnlocked` ) VALUES ('"..key.."',"..isEarnedNumber..","..isUnlockedNumber..");"
+			local dbResult = availabilityDB:exec(sql)
+			if dbResult ~= sqlite3.OK then
+				print(dbResult, availabilityDB:errmsg() )
+			end
+		end	
 
 		closeDB( availabilityDB, 'Availability.save' )
 
