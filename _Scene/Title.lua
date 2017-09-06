@@ -166,6 +166,9 @@ function scene:create( event )
 	if lang == 'lang_fr' then
 		playButtonFilename = '__image/title/playButton_fr.png'
 	end
+	if lang == 'lang_jp' then
+		playButtonFilename = '__image/title/playButton_jp.png'
+	end
 
 	local playButtonAspect = 501/301
 	local playButton = display.newGroup()
@@ -236,10 +239,16 @@ function scene:create( event )
 	infoButton:addEventListener( 'tap', infoButton )
 
 
+	local fontName = 'HAMBH___.ttf'
+	if 'lang_jp' == lang then
+		fontName = 'irohamaru-mikami-Regular.ttf'
+	end
+
+
 	local parentsButton = display.newGroup( )
 	local parentsLabel = display.newText( {
 		text = require( '_Assets.Text' ).forKey( 'parents' ),
-		font = 'HAMBH___.ttf',
+		font = fontName,
 		fontSize = 30,
 		})
 	parentsLabel:setFillColor( 49/255, 242/255, 201/255  )

@@ -21,6 +21,14 @@ function CustomerPanel.new( customer )
 
 
 
+	local fontName = 'HAMBH___.ttf'
+	local fontSize = 14
+	if 'lang_jp' == Language.getPreference() then
+		--fontName = 'irohamaru-mikami-Regular.ttf'
+		fontName = 'shirokuma.ttf'
+		fontSize = 14
+	end
+
 
 	if customer.avatarImageFilename then
 		local avatar = display.newImageRect( customer.avatarImageFilename, 40, 40 )
@@ -34,8 +42,8 @@ function CustomerPanel.new( customer )
 	local _label = string.upper( text.forKey( 'patience' ) )
 	local patienceLabel = display.newText({ 
 		text = _label,
-		fontSize = 14,
-		font = 'HAMBH___.ttf',
+		fontSize = fontSize,
+		font = fontName,
 	})
 	patienceLabel:setFillColor( 1 )
 	patienceLabel.anchorX = 0
@@ -56,8 +64,8 @@ function CustomerPanel.new( customer )
 	_label = text.forKey( 'bestScore' )
 	local ratingLabel = display.newText({
 		text = _label,
-		fontSize = 14,
-		font = 'HAMBH___.ttf',
+		fontSize = fontSize,
+		font = fontName,
 		})
 	ratingLabel:setFillColor( 1 )
 	ratingLabel.anchorX = 0

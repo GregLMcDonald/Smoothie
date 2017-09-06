@@ -5,9 +5,9 @@ local grinderHeight = 160
 
 local imageDir = '__image/appliances/'
 
-function Grinder.new()
+function Grinder.new( options )
 
-    local result = require( '_Appliance.Appliance' ).new()
+    local result = require( '_Appliance.Appliance' ).new( options )
     result.type = 'grinder'
 
     local myText = require '_Assets.Text'
@@ -38,6 +38,8 @@ function Grinder.new()
 
     
     ]]
+
+    result:completeInitialization()
 
     function result:processContents( completionHandler )
 

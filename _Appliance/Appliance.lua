@@ -5,7 +5,9 @@ local height = 160
 
 local maxContents = 5
 
-function Appliance.new()
+function Appliance.new( options )
+
+    local options = options or {}
 
 	local result = display.newGroup( )
 	result.contents = {}
@@ -15,7 +17,21 @@ function Appliance.new()
     result.width = width
     result.height = height
     result.action = ''
-    result.isLocked = false
+    if nil ~= options.isUnlocked then
+        result.isUnlocked = options.isUnlocked
+    else
+        result.isUnlocked = true
+    end
+    local lockedImage = display.newImageRect( '__image/ui/premiumOverlay.png', width, height)
+    if lockedImage then
+        result.lockedImage = lockedImage
+        result:insert( lockedImage )
+        result.lockedImage.alpha = 0
+        if false == result.isUnlocked then
+            result.lockedImage.alpha = 1
+        end
+    end
+
     result.imageFilename = nil
     
     result.type = 'appliance'
@@ -80,16 +96,18 @@ function Appliance.new()
         return isOnShelf
     end
 
-    function result:setLocked( state, time )
-        if self.lockImage == nil then
-            local lockImage = display.newImageRect( '__image/appliances/lock.png', width, height )
-            if lockImage then
-                self.lockImage = lockImage
-                self:insert( lockImage )
-                lockImage:toFront( )
+    function result:setUnlocked( state, time )
+        self.isUnlocked = state
+        if self.lockedImage then
+            if true == state then
+                self.lockedImage.alpha = 0
+            else
+                self.lockedImage.alpha = 1
             end
         end
     end
+
+
     function result:empty()
     	for i = 1, #self.fillingObjects do
     		local obj = self.fillingObjects[ i ]
@@ -179,6 +197,10 @@ function Appliance.new()
         for i = #self.fillingObjects, 1, -1 do
             table.remove( self.fillingObjects, i)
         end
+        if self.lockedImage then
+            self.lockedImage:removeSelf( )
+            self.lockImage = nil
+        end
         display.remove( self )
     end
 
@@ -200,6 +222,12 @@ function Appliance.new()
         liteCopy.imageFilename = self.imageFilename
 
         return liteCopy
+    end
+
+    function result:completeInitialization()
+        if self.lockedImage then
+            self.lockedImage:toFront( )
+        end
     end
 
 

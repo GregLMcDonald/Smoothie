@@ -69,11 +69,11 @@ local function addAppliances()
 	local sceneGroup = scene.view
 
 	local appliances = {
-    	require( '_Appliance.Dummy' ).new(),
-        require( '_Appliance.Blender' ).new(),
-    	require( '_Appliance.Grinder' ).new(),
-    	require( '_Appliance.Press' ).new(),
-    	require( '_Appliance.Dummy' ).new(),
+        require( '_Appliance.Blender' ).new( { isUnlocked = scene.unlockedAvailability[ 'appliance1' ] } ),
+    	require( '_Appliance.Press' ).new( { isUnlocked = scene.unlockedAvailability[ 'appliance2' ] } ),
+        require( '_Appliance.Dummy' ).new( { isUnlocked = scene.unlockedAvailability[ 'appliance3' ] } ),
+    	require( '_Appliance.Grinder' ).new( { isUnlocked = scene.unlockedAvailability[ 'appliance4' ] } ),
+    	require( '_Appliance.Dummy' ).new( { isUnlocked = scene.unlockedAvailability[ 'appliance5' ] } ),
     }
 
     local shelfY = display.contentHeight - 75
@@ -100,6 +100,11 @@ local function addAppliances()
 
 
     	function appliance:tap()
+
+            if false == self.isUnlocked then
+                print('appliance locked')
+                return false
+            end
 
     		if appliance:isOnShelf() then
 
@@ -196,8 +201,9 @@ local function addIngredientsChooser()
     	local y = yBase + ( (i-1) % ingredientsPerColumn ) * yStep
 
         local isIngredientEarned = scene.earnedAvailability[ key ]
+        local isIngredientUnlocked = scene.unlockedAvailability[ key ]
    
-    	local _ingredientDisplayObject = IngredientDisplayObject.new( _ingredient, { isEarned = isIngredientEarned } )
+    	local _ingredientDisplayObject = IngredientDisplayObject.new( _ingredient, { isEarned = isIngredientEarned, isUnlocked = isIngredientUnlocked } )
 
     	_ingredientDisplayObject.x = x
     	_ingredientDisplayObject.y = y
@@ -541,6 +547,11 @@ function scene:hide( event )
     if ( phase == "will" ) then
         local sound = require '_Assets.Sound'
         sound.duckBackgroundMusic()
+
+        Runtime:removeEventListener( 'logButtonTapped', self )
+        Runtime:removeEventListener( 'emptyApplianceButtonTapped', self )
+        Runtime:removeEventListener( 'undoButtonTapped', self )
+
     elseif ( phase == "did" ) then
     end
 end

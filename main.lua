@@ -10,6 +10,8 @@ sound:init()
 
 local Availability = require '_Assets.Availability'
 Availability.load()
+--Availability.reset()
+
 
 
 

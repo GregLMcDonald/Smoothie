@@ -5,9 +5,9 @@ local pressHeight = 160
 
 local imageDir = '__image/appliances/'
 
-function Press.new()
+function Press.new( options )
 
-    local result = require( '_Appliance.Appliance' ).new()
+    local result = require( '_Appliance.Appliance' ).new( options )
     result.type = 'press'
 
     local myText = require '_Assets.Text'
@@ -38,6 +38,8 @@ function Press.new()
 
     
     ]]
+
+    result:completeInitialization()
 
     function result:processContents( completionHandler )
 

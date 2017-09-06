@@ -32,8 +32,13 @@ local function setEarnedAndLockedDefaultValues()
 
 	for i=1, #applianceKeys do
 		local key = applianceKeys[ i ]
-		isEarned[ key ] = true
-		isUnlocked[ key ] = true
+		if i <= 2 then
+			isEarned[ key ] = true
+			isUnlocked[ key ] = true
+		else
+			isEarned[ key ] = true
+			isUnlocked[ key ] = false
+		end
 	end
 
 end

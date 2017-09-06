@@ -4,9 +4,9 @@ local Dummy = {}
 local width = 160
 local height = 160
 
-function Dummy.new()
+function Dummy.new( options )
 
-	local result = require( '_Appliance.Appliance' ).new()
+	local result = require( '_Appliance.Appliance' ).new(options )
 	result.type = 'dummy'
 
 	 local myText = require '_Assets.Text'
@@ -16,6 +16,8 @@ function Dummy.new()
 
 	local rectangle = display.newRect( result, 0, 0, width, height )
 	rectangle:setFillColor( 0.7 )
+
+	result:completeInitialization()
 
 	return result
 

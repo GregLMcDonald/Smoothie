@@ -152,7 +152,7 @@ local function createLogEntryDisplay( entry, rowNumber )
 
 	local lastIngredientX = 0
 	for i=1,#recipe.ingredients do
-		local obj = IngredientDisplayObject.new( recipe.ingredients[ i ], { isEarned = true } )
+		local obj = IngredientDisplayObject.new( recipe.ingredients[ i ], { isEarned = true, isUnlocked = true } )
 
 
 		obj.xScale = 0.8

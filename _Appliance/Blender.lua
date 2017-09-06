@@ -5,9 +5,9 @@ local blenderHeight = 160
 
 local imageDir = '__image/appliances/'
 
-function Blender.new()
+function Blender.new( options )
 
-	local result = require( '_Appliance.Appliance' ).new()
+	local result = require( '_Appliance.Appliance' ).new( options )
 	result.type = 'blender'
 
     local myText = require '_Assets.Text'
@@ -30,6 +30,8 @@ function Blender.new()
     	result:insert( filling )
     	table.insert( result.fillingObjects, filling )
     end
+
+    result:completeInitialization()
 
 
 

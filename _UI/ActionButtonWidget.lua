@@ -11,10 +11,17 @@ function ActionButtonWidget.new()
     
     local function getButtonLabelObject( text )
 
+        local language = require( '_Assets.Language' ).getPreference()
+        local fontName = 'HAMBH___.ttf'
+        if language == 'lang_jp' then
+            --fontName = 'irohamaru-mikami-Regular.ttf'
+            fontName = 'shirokuma.ttf'
+        end
+
         local buttonLabel = display.newText({
             text = string.upper( text ),
             fontSize = 30,
-            font = 'HAMBH___.ttf',
+            font = fontName,
             })
         buttonLabel:setFillColor( 1 )
         
