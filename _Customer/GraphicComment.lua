@@ -1,9 +1,19 @@
 local GraphicComment = {}
 
+--==========================================
+--   CONSTANTS
+
+local scale = 40 / 512
+local interlineSpacing = 50
+
+
+
 local Ingredients = require '_Culinary.Ingredients'
 local ingredientList
 local ingredientListKeys
 ingredientList, ingredientListKeys = Ingredients.getList()
+
+
 
 
 --[[
@@ -14,38 +24,42 @@ In directory with image files:
 	cat temp | sed /\.png/s/// >> temp2
 	cat temp2 | sed /.*/s//\"\&\",/
 
-and copy&paste list from stdout. 
+and copy&paste list from stdout. Remove "temp", "temp2", etc. from list
 ]]
 
 local mathNames = {
-"because",
-"divide",
-"emptySet",
-"equals",
-"forAll",
-"identicalTo",
-"implies",
-"infinity",
-"isGreaterThan",
-"isLessThan",
-"minus",
-"pencilAndRuler",
-"percent",
-"pi",
-"pieGraph",
-"plus",
-"plusOrMinus",
-"temp",
-"therefore",
-"times",
+	"because",
+	"divide",
+	"emptySet",
+	"equals",
+	"forAll",
+	"identicalTo",
+	"implies",
+	"infinity",
+	"isGreaterThan",
+	"isLessThan",
+	"minus",
+	"pencilAndRuler",
+	"percent",
+	"pi",
+	"pieGraph",
+	"plus",
+	"plusOrMinus",
+	"therefore",
+	"times",
+	"doesNotEqual",
 }
 local mathList = {}
 for i=1,#mathNames do
 	local name = mathNames[ i ]
 	mathList[ name ] = true
 end
+mathNames = nil
+local function getMathImageFilename( base )
+	return '__image/math/'..base..'.png'
+end
 
-local emoticonList = {}
+
 local emoticonNames = {
 	"angel",
 	"angry",
@@ -89,7 +103,6 @@ local emoticonNames = {
 	"sweat",
 	"tearsOfJoy",
 	"teethRattling",
-	"temp",
 	"thinking",
 	"tired",
 	"unamused",
@@ -99,11 +112,61 @@ local emoticonNames = {
 	"winkingTongue",
 	"zombie",
 }
+
+local emoticonList = {}
 for i=1,#emoticonNames do
 	local name = emoticonNames[ i ]
 	emoticonList[ name ] = true
 end
+emoticonNames = nil
+local function getEmoticonImageFilename( base )
+	return '__image/emoticons/'..base..'.png'
+end
 
+
+local punctuationNames = {
+	"comma",
+	"ellipsis",
+	"emDash",
+	"exclamation",
+	"period",
+	"question",
+	"tripleExclamation",
+	"colon",
+}
+
+local punctuationList = {}
+for i=1,#punctuationNames do
+	local name = punctuationNames[ i ]
+	punctuationList[ name ] = true
+end
+punctuationNames = nil
+local function getPunctuationImageFilename( base )
+	return '__image/punctuation/'..base..'.png'
+end
+
+
+local animalNames = {
+	"bear",
+	"cat",
+	"chicken",
+	"cow",
+	"dog",
+	"frog",
+	"gorilla",
+	"monkey",
+	"pig",
+	"tiger",
+}
+local animalList = {}
+for i=1,#animalNames do
+	local name = animalNames[ i ]
+	animalList[ name ] = true
+end
+animalNames = nil
+local function getAnimalImageFilename( base )
+	return '__image/animals/'..base..'.png'
+end
 
 
 
@@ -111,7 +174,7 @@ end
 
 function GraphicComment.new( commentString, options )
 	
-	--local result = display.newGroup()
+	local result = display.newGroup()
 
 	local options = options or {}
 	local customer = options.customer
@@ -128,6 +191,8 @@ function GraphicComment.new( commentString, options )
 
 
 	-- lookup image file for each token
+
+	local imageFilenames = {}
 
 	for i=1,#tokens do
 
@@ -150,13 +215,25 @@ function GraphicComment.new( commentString, options )
 			elseif class == 'emoticon' then
 
 				if emoticonList[ name ] then
-					imageFilename = '__image/emoticons/'..name..'.png'
+					imageFilename = getEmoticonImageFilename( name )
 				end
 
 			elseif class == 'math' then
 
 				if mathList[ name ] then
-					imageFilename = '__image/math/'..name..'.png'
+					imageFilename = getMathImageFilename( name )
+				end
+
+			elseif class == 'punctuation' then
+
+				if punctuationList[ name ] then
+					imageFilename = getPunctuationImageFilename( name )
+				end
+
+			elseif class == 'animal' then
+
+				if animalList[ name ] then
+					imageFilename = getAnimalImageFilename( name )
 				end
 
 			end
@@ -170,80 +247,127 @@ function GraphicComment.new( commentString, options )
 				if customer then
 					imageFilename = customer.avatarImageFilename
 				end
+			
+			elseif token == 'newline' then
+
+				imageFilename = 'NEWLINE'
+
 			end
 
 
 		end
 
-		print(token,imageFilename)
+		if imageFilename == nil then
+			print("WARNING unknown image for token",token)
+			imageFilename = '__image/punctuation/unknownImage.png'
+		end
+
+		table.insert( imageFilenames, imageFilename )
 
 	end
 
 
 	-- instantiate DisplayObjects and add to group in correct position
+	local x = 0
+	local y = 0
+	for i=1,#imageFilenames do
+		local filename = imageFilenames[ i ]
+
+		if filename == 'NEWLINE' then
+
+			x = 0
+			y = y + interlineSpacing
+
+		else
+
+			local image = display.newImage( filename )
+			if image then
+
+				image.xScale = scale
+				image.yScale = scale
+
+				image.x = x + 0.5 * image.contentWidth
+				x = x + image.contentWidth
+
+				image.y = y + 0.5 * image.contentHeight
+
+				result:insert( image )
+
+			end
+
+
+		end
+
+		
+		
+	end
 
 
 
 
-
-	--return result
+	return result
 
 end
 
---[[
+function GraphicComment.testImageFilenames( verbose )
 
-angel.png
-angry.png
-cool.png
-devil.png
-dizzy.png
-expressionless.png
-eyesClosedBigGrinHappy.png
-eyesClosedBigSmile.png
-eyesClosedHappy.png
-eyesOpenTongue.png
-happy.png
-happySweating.png
-inLove.png
-injured.png
-kiss.png
-kissHeart.png
-kissWink.png
-masked.png
-momentOfSilence.png
-mute.png
-neutral.png
-openMouthCool.png
-passedOutGreen.png
-passedOutTongueOut.png
-rainbowVomiting.png
-sad.png
-scared.png
-scaredBlue.png
-secret.png
-shocked.png
-shutOutTheWorld.png
-sick.png
-singleTear.png
-sleeping.png
-smile.png
-smirking.png
-squintingTongue.png
-starrySmiling.png
-stunnedSurprise.png
-sweat.png
-tearsOfJoy.png
-teethRattling.png
-temp
-thinking.png
-tired.png
-unamused.png
-vomiting.png
-weeping.png
-wink.png
-winkingTongue.png
-zombie.png
+	for k,v in pairs( punctuationList ) do
 
-]]
+		local name = getPunctuationImageFilename( k )
+		local temp = display.newImage( name )
+		if nil == temp then
+			print("WARNING file not found",  name )
+		else
+			if true == verbose then
+				print("OK", name)
+			end
+			temp:removeSelf( )
+			temp = nil
+		end
+	end
+
+	for k,v in pairs( mathList) do
+		local name = getMathImageFilename( k )
+		local temp = display.newImage( name )
+		if nil == temp then
+			print("WARNING file not found", name )
+		else
+			if true == verbose then
+				print("OK",name)
+			end
+			temp:removeSelf( )
+			temp = nil
+		end
+	end
+
+	for k,v in pairs(emoticonList) do
+		local name = getEmoticonImageFilename( k )
+		local temp = display.newImage( name )
+		if nil == temp then
+			print("WARNING file not found", name )
+		else
+			if true == verbose then
+				print("OK",name)
+			end
+			temp:removeSelf( )
+			temp = nil
+		end
+	end
+
+	for k,v in pairs(animalList) do
+		local name = getAnimalImageFilename( k )
+		local temp = display.newImage( name )
+		if nil == temp then
+			print("WARNING file not found", name )
+		else
+			if true == verbose then
+				print("OK",name)
+			end
+			temp:removeSelf( )
+			temp = nil
+		end
+	end
+
+end
 
 return GraphicComment

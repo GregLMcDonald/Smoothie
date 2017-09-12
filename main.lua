@@ -1,6 +1,11 @@
 
 -- main.lua
 
+require( '_Customer.TestGraphicComment' ).run()
+
+
+--[[
+
 display.setStatusBar( display.HiddenStatusBar )
 
 local sound = require( '_Assets.Sound' )
@@ -33,3 +38,5 @@ local function systemEvent( event )
 	end
 end
 Runtime:addEventListener( 'system', systemEvent )
+
+]]

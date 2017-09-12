@@ -57,7 +57,7 @@ end
 
 local sqlite3 = require( "sqlite3" )
 local function closeDB( db, caller )
-	local verbose = true
+	local verbose = false
 	
 	if caller == nil then 
 		caller = "?" 

@@ -344,7 +344,7 @@ function Customer.new( ingredients, options )
 
 
 	function result:commentOnRecipe( recipe )
-		local result = ""
+		local result = "{apple}{equals}{loveSmiley}{bang}"
 
 		return result
 	end

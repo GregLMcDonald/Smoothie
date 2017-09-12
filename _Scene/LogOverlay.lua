@@ -16,14 +16,16 @@ local function createCommentsDisplay( comments, startX, startY )
 
 	local result = display.newGroup()
 
-	local maskTable = display.newRect( 0,0,320,480)
-	maskTable:setFillColor( 1 )
-	maskTable.alpha = 0
-	result:insert( maskTable )
-	result.maskTable = maskTable
+	local maskOverLog = display.newRect( 0,0,320,480)
+	maskOverLog:setFillColor( 1 )
+	maskOverLog.alpha = 0
+	result:insert( maskOverLog )
+	result.maskOverLog = maskOverLog
 
 	
-
+	for v in string.gmatch( comments, '(\{[%a\:]+\})' ) do
+		print('--',v)
+	end
 
 
 
@@ -100,7 +102,7 @@ local function createCommentsDisplay( comments, startX, startY )
 			result:removeSelf( )
 		end
 
-		transition.to( self.maskTable, { alpha = 0, time = 50 })
+		transition.to( self.maskOverLog, { alpha = 0, time = 50 })
 		local x = startX or self.x
 		local y = startY or self.y
 		transition.to( self, { x = x, y = y, xScale = 0.01, yScale = 0.01, delay = 50, time = transitionTime, onComplete = onComplete })
@@ -118,7 +120,7 @@ local function createCommentsDisplay( comments, startX, startY )
 
 	transition.to( result, { x = 160, y = 240, xScale = 1, yScale = 1, time = transitionTime })
 	
-	transition.to( result.maskTable, { alpha = 0.95, delay = transitionTime + 20, time = 50 } ) 
+	transition.to( result.maskOverLog, { alpha = 0.95, delay = transitionTime + 20, time = 50 } ) 
 
 
 	return result
