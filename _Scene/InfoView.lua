@@ -4,6 +4,9 @@
 local composer = require( "composer" )
 local scene = composer.newScene()
 
+local scrollTouched = false
+local scrollTargetY = 0
+
 local function goBack()
 	Runtime:dispatchEvent( { name = 'soundEvent', key = 'Bleep_04' })
 	local previousSceneName = composer.getSceneName( 'previous' )
@@ -74,6 +77,9 @@ function scene:create( event )
 
 	infoTextObject:setFillColor( 43/255, 31/255, 25/255 )
 	--infoTextObject:setFillColor( .5 )
+
+	scrollTargetY = -(infoTextObject.contentHeight - display.contentHeight) - 50
+	print('scrollTargetY',scrollTargetY)
 	
 	local scrollViewWidth = textParameters.maximumLineLength() + 10
 	infoTextObject.x = 0.5 * scrollViewWidth
@@ -81,6 +87,13 @@ function scene:create( event )
 
 	local widget = require 'widget'
 
+	local function scrollViewListener( event )
+		if event.phase == 'began' then
+			scrollTouched = true
+		elseif event.phase == 'ended' then
+			scrollTouched = false
+		end
+	end
 	local scrollView = widget.newScrollView( {
 		hideBackground = true,
 		--backgroundColor = {.8,1,.8},
@@ -89,6 +102,7 @@ function scene:create( event )
 		horizontalScrollDisabled = true,
 		width = scrollViewWidth,
 		height = 440,
+		listener = scrollViewListener,
 		} )
 	scrollView:insert( infoTextObject )
 	sceneGroup:insert( scrollView )
@@ -115,6 +129,17 @@ function scene:create( event )
 
 end
 
+local function update( event )
+
+	if scene.scrollView then
+		local x, y = scene.scrollView:getContentPosition( )
+		if scrollTouched == false and y > scrollTargetY then
+			scene.scrollView:scrollToPosition( { y = y - 0.25, time = 0} )
+		end
+	end
+
+
+end
 
 function scene:show( event )
 
@@ -124,6 +149,9 @@ function scene:show( event )
     if ( phase == "will" ) then
     elseif ( phase == "did" ) then
     	Runtime:addEventListener( 'key', self )
+
+    	Runtime:addEventListener( 'enterFrame', update )
+
     end
 end
 function scene:hide( event )
@@ -133,6 +161,8 @@ function scene:hide( event )
 
     if ( phase == "will" ) then
     	Runtime:removeEventListener( 'key', self )
+    	Runtime:removeEventListener( 'enterFrame', update )
+
     elseif ( phase == "did" ) then
     	
     end
