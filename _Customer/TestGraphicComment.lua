@@ -25,7 +25,7 @@ function TestGraphicComment.run()
 	print("===============================================================")
 	print("TestGraphicComment: running GraphicComment.testImageFilenames() ")
 	
-	GraphicComment.testImageFilenames( )
+	GraphicComment.testImageFilenames( true )
 
 	--local commentString = "{me}{math:equals}{ingredient:raspberry}{punctuation:question}{newline}{emoticon:kissWink}"
 	
@@ -39,12 +39,13 @@ function TestGraphicComment.run()
 	print("TestGraphicComment: testing comment strings")
 
 	local commentString = [[
-	{me}{math:doesNotEqual}{ingredient:banana}{punctuation:exclamation}{newline}\z
-	{ingredient:carrot}{math:isLessThan}{ingredient:strawberry}{newline}\z
-	{ingredient:carrot}{ingredient:carrot}{ingredient:carrot}{punctuation:ellipsis}{emoticon:thinking}{newline}\z
-	{ingredient:apple}{punctuation:colon}{emoticon:unamused}
+	{me}{math:equals}{animal:gorilla}{punctuation:question}{newline}\z
+	{ingredient:carrot}{math:isGreaterThan}{ingredient:strawberry}{newline}\z
+	{ingredient:carrot}{ingredient:carrot}{ingredient:carrot}{punctuation:ellipsis}{emoticon:devil}{newline}\z
+	{ingredient:apple}{math:equals}{emoticon:vomiting}
 	]]
 	local comment =  GraphicComment.new( commentString , { customer = thisCustomer, maxWidth = display.contentWidth } )
+	print('comment.height',comment.height,'comment.width',comment.width)
 
 	comment.y = display.contentCenterY - 0.5 * comment.height
 	comment.x = display.contentCenterX  - 0.5 * comment.width
