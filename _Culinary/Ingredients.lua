@@ -1,9 +1,20 @@
+------------------------------------------------------------------------------
+--
+-- Title:  Ingredients.lua
+-- Project: SnackLab
+--
+-- Author: Greg McDonald
+---------------------------------------------------------------------------------
+
 local Ingredients = {}
 
 local Ingredient = require( '_Culinary.Ingredient' )
 
 
 function Ingredients.getList( isEarned, isUnlocked )
+
+	local isEarned = isEarned or {}
+	local isUnlocked = isUnlocked or {}
 
 
 	local ingredientList = {}
@@ -35,18 +46,25 @@ function Ingredients.getList( isEarned, isUnlocked )
 
 				elseif 'red' == k or 'green' == k or 'blue' == k then
 
+					-- RGB values in the ingredients DB are on [ 0 - 255 ]
+					-- Corona need values on [ 0, 1 ], so we convert here.
+
 					colour[ k ] = v / 255 or 1
 
 				elseif 'is' == string.sub( k, 1, 2 ) then
+
+					-- Column names in the ingredients DB that start with
+					-- 'is' are meant to be BOOLEAN.  1 == TRUE, 0 == FALSE.
 
 					ingredient[ k ] = true
 					if 0 == v then
 						ingredient[ k ] = false
 					end
 
-
 				else
+
 					ingredient[ k ] = v
+
 				end
 
 			end
@@ -128,6 +146,12 @@ function Ingredients.getList( isEarned, isUnlocked )
 
 	end
 
+	-- Some of the ingredients in the database have a rank associated
+	-- with them.  This is the order in which they should be unlocked.
+	-- Everything else is unranked.  The list of keys we return
+	-- (ingredientListKeys) begin with the sorted ranked keys and then
+	-- everything else follows.
+	
 	local ingredientListRankedKeys = {}
 	local ingredientListUnrankedKeys = {}
 	for k,v in pairs(ingredientList) do
@@ -148,7 +172,7 @@ function Ingredients.getList( isEarned, isUnlocked )
 	end
 
 	--Cull ingredients that are locked or unearned
-	if isEarned or isUnlocked then
+	--if isEarned or isUnlocked then
 		local goodKeys = {}
 		for i=1,#ingredientListKeys do
 			local key = ingredientListKeys[ i ]
@@ -159,7 +183,7 @@ function Ingredients.getList( isEarned, isUnlocked )
 			end
 		end
 		ingredientListKeys = goodKeys
-	end
+	--end
 
 
 	return ingredientList, ingredientListKeys

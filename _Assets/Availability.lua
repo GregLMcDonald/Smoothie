@@ -12,9 +12,19 @@ local applianceKeys = {
 
 local isEarned = {}
 local isUnlocked = {}
+
+local N_EARNED_INGREDIENTS_DEFAULT = 5		-- EARNED ingredients are
+											-- available for use in recipes
+
+local N_UNLOCKED_INGREDIENTS_DEFAULT = 10   -- UNLOCKED ingredients are 
+											-- available to be earned
+
+local N_EARNED_AND_UNLOCKED_APPLIANCES = 2
+
+
 local function setEarnedAndLockedDefaultValues()
 	for i=1,#ingredientKeys do
-		if i <= 5 then
+		if i <= N_EARNED_INGREDIENTS_DEFAULT then
 			isEarned[ ingredientKeys[ i ] ] = true
 		else
 			isEarned[ ingredientKeys[ i ] ] = false
@@ -23,7 +33,7 @@ local function setEarnedAndLockedDefaultValues()
 
 	
 	for i=1, #ingredientKeys do
-		if i <= 10 then
+		if i <= N_UNLOCKED_INGREDIENTS_DEFAULT then
 			isUnlocked[ ingredientKeys[ i ] ] = true
 		else
 			isUnlocked[ ingredientKeys[ i ] ] = false
@@ -32,7 +42,7 @@ local function setEarnedAndLockedDefaultValues()
 
 	for i=1, #applianceKeys do
 		local key = applianceKeys[ i ]
-		if i <= 2 then
+		if i <= N_EARNED_AND_UNLOCKED_APPLIANCES then
 			isEarned[ key ] = true
 			isUnlocked[ key ] = true
 		else
@@ -40,7 +50,6 @@ local function setEarnedAndLockedDefaultValues()
 			isUnlocked[ key ] = false
 		end
 	end
-
 end
 setEarnedAndLockedDefaultValues()
 
@@ -240,7 +249,8 @@ function Availability.save( playerID )
 	local availabilityDB = openDatabaseForTable( tableName )
 	if availabilityDB then
 
-		local sql = "DELETE FROM "..tableName..";"
+		-- deletes all entries from table
+		local sql = "DELETE FROM "..tableName..";" 
 		availabilityDB:exec(sql)
 
 		for i=1,#ingredientKeys do
@@ -279,7 +289,6 @@ function Availability.save( playerID )
 		closeDB( availabilityDB, 'Availability.save' )
 
 	end
-
 end
 
 function Availability.reset()
@@ -289,7 +298,6 @@ function Availability.reset()
 
 	Availability.save()
 	availabilityLoaded = true
-
 end
 
 return Availability

@@ -46,7 +46,7 @@ function scene:create( event )
 	end
 
 
-	local aspect = 646 / 414
+	local aspect = 646 / 414  -- MAGIC based on actual dimension of title card
 
 	local title = display.newGroup()
 
@@ -70,7 +70,7 @@ function scene:create( event )
 
 	--[[
 
-	Glint locations on title image at 646 x 414
+	Glint locations on title image at 646 x 414 in Gimp coordinates
 
 	130,122
 	501,150
@@ -137,9 +137,9 @@ function scene:create( event )
 				self.glint3Timer = timer.performWithDelay( delayToNextGlintEvent, fireGlint3 )
 			end
 
-			timer.performWithDelay( 2000 * math.random(), fireGlint1 )
-			timer.performWithDelay( 2000 * math.random(), fireGlint2 )
-			timer.performWithDelay( 2000 * math.random(), fireGlint3 )
+			self.glint1Timer = timer.performWithDelay( 2000 * math.random(), fireGlint1 )
+			self.glint2Timer = timer.performWithDelay( 2000 * math.random(), fireGlint2 )
+			self.glint3Timer = timer.performWithDelay( 2000 * math.random(), fireGlint3 )
 			
 
 		else

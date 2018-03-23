@@ -1,3 +1,11 @@
+------------------------------------------------------------------------------
+--
+-- Title:  Ingredient.lua
+-- Project: SnackLab
+--
+-- Author: Greg McDonald
+---------------------------------------------------------------------------------
+
 local Ingredient = {}
 
 local Language = require( '_Assets.Language' )

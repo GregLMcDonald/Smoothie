@@ -3,13 +3,29 @@
 
 display.setStatusBar( display.HiddenStatusBar )
 
+
+local DisplayTools = require '_Tools.DisplayTools'
+--local test = DisplayTools.surroundInColour( '__image/customers/boy-1.png', {abs = 50, colour = {0,1,0} } )
+--local test = DisplayTools.surroundInColour( '__image/ingredients/apple.png', {abs = 30, colour = {1,1,1} } )
+local test = DisplayTools.surroundInColour( '__image/animals/monkey.png', {abs = 30, colour = { 1,0,0 } } )
+test.x = display.contentCenterX
+test.y = display.contentCenterY
+
+test:setScale( 0.3 )
+
+local rect = display.newRect( test.x, test.y, test.contentWidth, test.contentHeight )
+rect:setFillColor( 1,1,1,0.3 )
+rect:toBack( )
+
 --require( '_Customer.TestGraphicComment' ).run()
 
 
 
 
-local sound = require( '_Assets.Sound' )
-sound:init()
+--[[
+
+local Sound = require( '_Assets.Sound' )
+Sound.init()
 
 
 
@@ -33,9 +49,10 @@ composer.gotoScene( '_Scene.Title' )
 
 local function systemEvent( event )
 	print(event.type)
-	if event.type == 'applicationExit' then
+	if event.type == 'applicationExit' or event.type == 'applicationSuspend' then
 		Availability.save()
 	end
 end
 Runtime:addEventListener( 'system', systemEvent )
 
+]]

@@ -1,3 +1,11 @@
+------------------------------------------------------------------------------
+--
+-- Title:  Recipe.lua
+-- Project: SnackLab
+--
+-- Author: Greg McDonald
+---------------------------------------------------------------------------------
+
 local Recipe = {}
 
 function Recipe.new( ingredients, applianceLite )
@@ -8,7 +16,13 @@ function Recipe.new( ingredients, applianceLite )
 
 
 	function result:hasDealBreakers( dealBreakerProperties )
+
 		if nil ~= self.isRecipeWithDealBreakers then
+			
+			-- This property has a non-nil value, so we already
+			-- determined whether or not there were deal-breakers.
+			-- Just return the same result.
+
 			return self.isRecipeWithDealBreakers
 		end
 
